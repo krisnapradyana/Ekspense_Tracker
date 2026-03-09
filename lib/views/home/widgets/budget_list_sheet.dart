@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../controllers/budget_controller.dart';
+import '../../../controllers/settings_controller.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../models/budget_model.dart';
 
@@ -42,32 +43,32 @@ class _BudgetListSheetState extends State<BudgetListSheet> {
     Navigator.pop(context);
   }
 
-  void _showAddBudgetDialog() {
+  void _showAddBudgetDialog(SettingsController settings) {
     showDialog(
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text('Tambah Budget Baru'),
+          title: Text(settings.getString('addBudgetNew')),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               TextField(
                 controller: _budgetNameController,
-                decoration: const InputDecoration(labelText: 'Nama Budget'),
+                decoration: InputDecoration(labelText: settings.getString('budgetName')),
               ),
               const SizedBox(height: 12),
               TextField(
                 controller: _budgetAmountController,
                 keyboardType: TextInputType.number,
-                decoration: const InputDecoration(labelText: 'Alokasi Dana (Rp)'),
+                decoration: InputDecoration(labelText: settings.getString('allocatedFunds')),
               ),
             ],
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text('Batal'),
+              child: Text(settings.getString('cancel')),
             ),
             ElevatedButton(
               onPressed: _addBudget,
@@ -75,7 +76,7 @@ class _BudgetListSheetState extends State<BudgetListSheet> {
                 backgroundColor: AppColors.sagePrimary,
                 foregroundColor: Colors.white,
               ),
-              child: const Text('Simpan'),
+              child: Text(settings.getString('save')),
             ),
           ],
         );
@@ -83,7 +84,7 @@ class _BudgetListSheetState extends State<BudgetListSheet> {
     );
   }
 
-  void _showEditBudgetDialog(BudgetCategory cat) {
+  void _showEditBudgetDialog(BudgetCategory cat, SettingsController settings) {
     final editNameController = TextEditingController(text: cat.name);
     final editAmountController = TextEditingController(text: cat.allocatedAmount.toStringAsFixed(0));
     
@@ -91,27 +92,27 @@ class _BudgetListSheetState extends State<BudgetListSheet> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text('Edit Budget'),
+          title: Text(settings.getString('editBudget')),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               TextField(
                 controller: editNameController,
-                decoration: const InputDecoration(labelText: 'Nama Budget'),
+                decoration: InputDecoration(labelText: settings.getString('budgetName')),
               ),
               const SizedBox(height: 12),
               TextField(
                 controller: editAmountController,
                 keyboardType: TextInputType.number,
-                decoration: const InputDecoration(labelText: 'Alokasi Dana (Rp)'),
+                decoration: InputDecoration(labelText: settings.getString('allocatedFunds')),
               ),
             ],
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text('Batal'),
+              child: Text(settings.getString('cancel')),
             ),
             ElevatedButton(
               onPressed: () {
@@ -126,7 +127,7 @@ class _BudgetListSheetState extends State<BudgetListSheet> {
                 backgroundColor: AppColors.sagePrimary,
                 foregroundColor: Colors.white,
               ),
-              child: const Text('Simpan'),
+              child: Text(settings.getString('save')),
             ),
           ],
         );
@@ -134,18 +135,18 @@ class _BudgetListSheetState extends State<BudgetListSheet> {
     );
   }
 
-  void _confirmDelete(BuildContext context, BudgetCategory cat) {
+  void _confirmDelete(BuildContext context, BudgetCategory cat, SettingsController settings) {
     showDialog(
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text('Hapus Budget'),
+          title: Text(settings.getString('deleteBudget')),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-          content: Text('Apakah Anda yakin ingin menghapus budget "${cat.name}"? Semua pengeluaran terkait juga akan dihapus.'),
+          content: Text(settings.getString('deleteConfirm')),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text('Batal', style: TextStyle(color: AppColors.textPrimary)),
+              child: Text(settings.getString('cancel'), style: TextStyle(color: AppColors.tp(isDark))),
             ),
             ElevatedButton(
               onPressed: () {
@@ -156,7 +157,7 @@ class _BudgetListSheetState extends State<BudgetListSheet> {
                 backgroundColor: AppColors.warningRed,
                 foregroundColor: Colors.white,
               ),
-              child: const Text('Hapus'),
+              child: Text(settings.getString('delete')),
             ),
           ],
         );
@@ -167,6 +168,8 @@ class _BudgetListSheetState extends State<BudgetListSheet> {
   @override
   Widget build(BuildContext context) {
     final controller = context.watch<BudgetController>();
+    final settingsController = context.watch<SettingsController>();
+    final isDark = settingsController.isDarkMode;
     
     return Container(
       constraints: BoxConstraints(
@@ -180,12 +183,12 @@ class _BudgetListSheetState extends State<BudgetListSheet> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
-                'Daftar Budget',
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
+              Text(
+                settingsController.getString('budgetList'),
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.tp(isDark)),
               ),
               IconButton(
-                onPressed: _showAddBudgetDialog,
+                onPressed: () => _showAddBudgetDialog(settingsController),
                 icon: const Icon(Icons.add_circle, color: AppColors.sagePrimary, size: 28),
               )
             ],
@@ -193,11 +196,11 @@ class _BudgetListSheetState extends State<BudgetListSheet> {
           const Divider(height: 24),
           Expanded(
             child: controller.categories.isEmpty
-                ? const Center(
+                ? Center(
                     child: Text(
-                      'Belum ada budget.\nSilakan tambah budget baru.',
+                      settingsController.getString('noBudgetsYet'),
                       textAlign: TextAlign.center,
-                      style: TextStyle(color: AppColors.textSecondary),
+                      style: TextStyle(color: AppColors.ts(isDark)),
                     ),
                   )
                 : ListView.builder(
@@ -225,7 +228,7 @@ class _BudgetListSheetState extends State<BudgetListSheet> {
                     margin: const EdgeInsets.only(bottom: 12),
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color: AppColors.sageSurface,
+                      color: AppColors.surface(isDark),
                       borderRadius: BorderRadius.circular(16),
                       border: Border.all(color: AppColors.sageSecondary.withOpacity(0.3)),
                     ),
@@ -244,7 +247,7 @@ class _BudgetListSheetState extends State<BudgetListSheet> {
                             ),
                           ),
                           Text('Rp ${cat.allocatedAmount.toStringAsFixed(0)}', 
-                               style: const TextStyle(color: AppColors.textSecondary, fontSize: 14)),
+                               style: TextStyle(color: AppColors.ts(isDark), fontSize: 14)),
                         ],
                       ),
                       const SizedBox(height: 8),
@@ -261,7 +264,7 @@ class _BudgetListSheetState extends State<BudgetListSheet> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text('Sisa: Rp ${cat.remaining.toStringAsFixed(0)}', 
+                          Text('${settingsController.getString('remaining')} ${cat.remaining.toStringAsFixed(0)}', 
                                style: TextStyle(color: color, fontWeight: FontWeight.w600, fontSize: 12)),
                           Row(
                             children: [
@@ -269,14 +272,14 @@ class _BudgetListSheetState extends State<BudgetListSheet> {
                                 constraints: const BoxConstraints(),
                                 padding: EdgeInsets.zero,
                                 icon: const Icon(Icons.edit, size: 20, color: AppColors.sagePrimary),
-                                onPressed: () => _showEditBudgetDialog(cat),
+                                onPressed: () => _showEditBudgetDialog(cat, settingsController),
                               ),
                               const SizedBox(width: 12),
                               IconButton(
                                 constraints: const BoxConstraints(),
                                 padding: EdgeInsets.zero,
                                 icon: const Icon(Icons.delete, size: 20, color: AppColors.warningRed),
-                                onPressed: () => _confirmDelete(context, cat),
+                                onPressed: () => _confirmDelete(context, cat, settingsController),
                               ),
                             ],
                           ),

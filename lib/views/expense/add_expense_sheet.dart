@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../controllers/budget_controller.dart';
+import '../../../controllers/settings_controller.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../models/expense_model.dart';
+import '../home/widgets/budget_list_sheet.dart';
 
 class AddExpenseSheet extends StatefulWidget {
   const AddExpenseSheet({super.key});
@@ -47,6 +49,8 @@ class _AddExpenseSheetState extends State<AddExpenseSheet> {
   @override
   Widget build(BuildContext context) {
     final controller = context.watch<BudgetController>();
+    final settingsController = context.watch<SettingsController>();
+    final isDark = settingsController.isDarkMode;
     
     // Default pemilihan budget pertama kali
     if (_selectedBudgetId == null && controller.categories.isNotEmpty) {
@@ -62,27 +66,48 @@ class _AddExpenseSheetState extends State<AddExpenseSheet> {
           children: [
             const Icon(Icons.account_balance_wallet_outlined, size: 64, color: AppColors.sageSecondary),
             const SizedBox(height: 16),
-            const Text(
-              'Belum Ada Budget',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
+            Text(
+              settingsController.getString('noBudgetAddedYet'),
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.tp(isDark)),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 8),
-            const Text(
-              'Silakan tambahkan budget terlebih dahulu sebelum mencatat pengeluaran.',
-              style: TextStyle(color: AppColors.textSecondary),
+            Text(
+              settingsController.getString('addBudgetFirst'),
+              style: TextStyle(color: AppColors.ts(isDark)),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 24),
             ElevatedButton(
-              onPressed: () => Navigator.pop(context),
+              onPressed: () {
+                Navigator.pop(context); // Tutup sheet tambah pengeluaran
+                showModalBottomSheet(
+                  context: context,
+                  isScrollControlled: true,
+                  backgroundColor: AppColors.surface(isDark),
+                  shape: const RoundedRectangleBorder(
+                    borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+                  ),
+                  builder: (context) => const BudgetListSheet(),
+                );
+              },
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.sagePrimary,
                 foregroundColor: Colors.white,
                 padding: const EdgeInsets.symmetric(vertical: 16),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
               ),
-              child: const Text('Tutup', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+              child: Text(settingsController.getString('addBudget'), style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+            ),
+            const SizedBox(height: 12),
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              style: TextButton.styleFrom(
+                foregroundColor: AppColors.ts(isDark),
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              ),
+              child: Text(settingsController.getString('close'), style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
             ),
           ],
         ),
@@ -101,9 +126,9 @@ class _AddExpenseSheetState extends State<AddExpenseSheet> {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const Text(
-            'Catat Pengeluaran',
-            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
+          Text(
+            settingsController.getString('recordExpense'),
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.tp(isDark)),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 24),
@@ -112,7 +137,7 @@ class _AddExpenseSheetState extends State<AddExpenseSheet> {
           DropdownButtonFormField<String>(
             value: _selectedBudgetId,
             decoration: InputDecoration(
-              labelText: 'Pilih Kategori Budget',
+              labelText: settingsController.getString('selectBudgetCategory'),
               border: OutlineInputBorder(borderRadius: BorderRadius.circular(16)),
               contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             ),
@@ -134,7 +159,7 @@ class _AddExpenseSheetState extends State<AddExpenseSheet> {
           TextField(
             controller: _titleController,
             decoration: InputDecoration(
-              labelText: 'Nama Pengeluaran (Cth: Nasi Goreng)',
+              labelText: settingsController.getString('expenseNameExample'),
               border: OutlineInputBorder(borderRadius: BorderRadius.circular(16)),
               contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               prefixIcon: const Icon(Icons.description_outlined),
@@ -147,7 +172,7 @@ class _AddExpenseSheetState extends State<AddExpenseSheet> {
             controller: _amountController,
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
             decoration: InputDecoration(
-              labelText: 'Nominal (Rp)',
+              labelText: settingsController.getString('amount'),
               border: OutlineInputBorder(borderRadius: BorderRadius.circular(16)),
               contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               prefixIcon: const Icon(Icons.attach_money),
@@ -165,7 +190,7 @@ class _AddExpenseSheetState extends State<AddExpenseSheet> {
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
               elevation: 0,
             ),
-            child: const Text('Simpan Pengeluaran', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+            child: Text(settingsController.getString('saveExpense'), style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
           ),
           const SizedBox(height: 24),
         ],

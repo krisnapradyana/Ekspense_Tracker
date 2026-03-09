@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../controllers/budget_controller.dart';
+import '../../controllers/settings_controller.dart';
 import '../../models/budget_model.dart';
-import '../../models/expense_model.dart'; // import ditambahkan
+import '../../models/expense_model.dart';
 import '../../core/theme/app_colors.dart';
 import 'package:intl/intl.dart';
 
@@ -17,7 +18,7 @@ class BudgetDetailScreen extends StatefulWidget {
 
 class _BudgetDetailScreenState extends State<BudgetDetailScreen> {
 
-  void _showEditExpenseDialog(BuildContext context, BudgetController controller, Expense expense) {
+  void _showEditExpenseDialog(BuildContext context, BudgetController controller, Expense expense, SettingsController settings, bool isDark) {
     final titleController = TextEditingController(text: expense.title);
     final amountController = TextEditingController(text: expense.amount.toStringAsFixed(0));
     String selectedBudgetId = expense.budgetId;
@@ -28,16 +29,16 @@ class _BudgetDetailScreenState extends State<BudgetDetailScreen> {
         return StatefulBuilder(
           builder: (context, setState) {
             return AlertDialog(
-              backgroundColor: AppColors.sageSurface,
+              backgroundColor: AppColors.surface(isDark),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-              title: const Text('Edit Pengeluaran', style: TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.bold)),
+              title: Text(settings.getString('editExpense'), style: TextStyle(color: AppColors.tp(isDark), fontWeight: FontWeight.bold)),
               content: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   DropdownButtonFormField<String>(
                     value: selectedBudgetId,
                     decoration: InputDecoration(
-                      labelText: 'Pilih Kategori Budget',
+                      labelText: settings.getString('selectBudgetCategory'),
                       border: OutlineInputBorder(borderRadius: BorderRadius.circular(16)),
                       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                     ),
@@ -59,7 +60,7 @@ class _BudgetDetailScreenState extends State<BudgetDetailScreen> {
                   TextField(
                     controller: titleController,
                     decoration: InputDecoration(
-                      labelText: 'Nama Pengeluaran',
+                      labelText: settings.getString('expenseName'),
                       border: OutlineInputBorder(borderRadius: BorderRadius.circular(16)),
                       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                     ),
@@ -69,7 +70,7 @@ class _BudgetDetailScreenState extends State<BudgetDetailScreen> {
                     controller: amountController,
                     keyboardType: const TextInputType.numberWithOptions(decimal: true),
                     decoration: InputDecoration(
-                      labelText: 'Nominal (Rp)',
+                      labelText: settings.getString('amount'),
                       border: OutlineInputBorder(borderRadius: BorderRadius.circular(16)),
                       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                     ),
@@ -79,7 +80,7 @@ class _BudgetDetailScreenState extends State<BudgetDetailScreen> {
               actions: [
                 TextButton(
                   onPressed: () => Navigator.pop(context),
-                  child: const Text('Batal', style: TextStyle(color: AppColors.textSecondary)),
+                  child: Text(settings.getString('cancel'), style: TextStyle(color: AppColors.ts(isDark))),
                 ),
                 ElevatedButton(
                   onPressed: () {
@@ -101,7 +102,7 @@ class _BudgetDetailScreenState extends State<BudgetDetailScreen> {
                     foregroundColor: Colors.white,
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                   ),
-                  child: const Text('Simpan'),
+                  child: Text(settings.getString('save')),
                 ),
               ],
             );
@@ -111,21 +112,21 @@ class _BudgetDetailScreenState extends State<BudgetDetailScreen> {
     );
   }
 
-  void _confirmDeleteExpense(BuildContext context, BudgetController controller, String expenseId) {
+  void _confirmDeleteExpense(BuildContext context, BudgetController controller, String expenseId, SettingsController settings, bool isDark) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        backgroundColor: AppColors.sageSurface,
+        backgroundColor: AppColors.surface(isDark),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: const Text('Hapus Pengeluaran?', style: TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.bold)),
-        content: const Text(
-          'Apakah Anda yakin ingin menghapus pengeluaran ini?\n\nDana akan dikembalikan ke sisa budget kategori.',
-          style: TextStyle(color: AppColors.textSecondary),
+        title: Text(settings.getString('deleteExpenseTitle'), style: TextStyle(color: AppColors.tp(isDark), fontWeight: FontWeight.bold)),
+        content: Text(
+          settings.getString('deleteExpenseConfirm'),
+          style: TextStyle(color: AppColors.ts(isDark)),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Batal', style: TextStyle(color: AppColors.textSecondary)),
+            child: Text(settings.getString('cancel'), style: TextStyle(color: AppColors.ts(isDark))),
           ),
           ElevatedButton(
             onPressed: () {
@@ -137,7 +138,7 @@ class _BudgetDetailScreenState extends State<BudgetDetailScreen> {
               foregroundColor: Colors.white,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
             ),
-            child: const Text('Hapus'),
+            child: Text(settings.getString('delete')),
           ),
         ],
       ),
@@ -147,6 +148,8 @@ class _BudgetDetailScreenState extends State<BudgetDetailScreen> {
   @override
   Widget build(BuildContext context) {
     final controller = context.watch<BudgetController>();
+    final settingsController = context.watch<SettingsController>();
+    final isDark = settingsController.isDarkMode;
     
     // Get all expenses for this specific budget
     final categoryExpenses = controller.expenses.where((e) => e.budgetId == widget.category.id).toList();
@@ -164,9 +167,9 @@ class _BudgetDetailScreenState extends State<BudgetDetailScreen> {
     final color = AppColors.getDynamicColor(percentage);
 
     return Scaffold(
-      backgroundColor: AppColors.sageBackground,
+      backgroundColor: AppColors.background(isDark),
       appBar: AppBar(
-        title: Text(currentCategory.name, style: const TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.bold)),
+        title: Text(currentCategory.name, style: TextStyle(color: AppColors.tp(isDark), fontWeight: FontWeight.bold)),
         backgroundColor: Colors.transparent,
         elevation: 0,
         iconTheme: const IconThemeData(color: AppColors.sagePrimary),
@@ -179,7 +182,7 @@ class _BudgetDetailScreenState extends State<BudgetDetailScreen> {
             margin: const EdgeInsets.all(24.0),
             padding: const EdgeInsets.all(24.0),
             decoration: BoxDecoration(
-              color: AppColors.sageSurface,
+              color: AppColors.surface(isDark),
               borderRadius: BorderRadius.circular(24.0),
               boxShadow: [
                 BoxShadow(
@@ -195,8 +198,8 @@ class _BudgetDetailScreenState extends State<BudgetDetailScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text('Sisa Budget', style: TextStyle(color: AppColors.textSecondary, fontSize: 14)),
-                    Text('Total: Rp ${currentCategory.allocatedAmount.toStringAsFixed(0)}', style: const TextStyle(color: AppColors.textSecondary, fontSize: 12)),
+                    Text(settingsController.getString('remainingBudget'), style: TextStyle(color: AppColors.ts(isDark), fontSize: 14)),
+                    Text('${settingsController.getString('total')} ${currentCategory.allocatedAmount.toStringAsFixed(0)}', style: TextStyle(color: AppColors.ts(isDark), fontSize: 12)),
                   ],
                 ),
                 const SizedBox(height: 8),
@@ -219,7 +222,7 @@ class _BudgetDetailScreenState extends State<BudgetDetailScreen> {
                   ),
                 ),
                 const SizedBox(height: 8),
-                Text('Terpakai: Rp ${currentCategory.spentAmount.toStringAsFixed(0)}', style: const TextStyle(color: AppColors.textSecondary, fontSize: 14)),
+                Text('${settingsController.getString('spent')} ${currentCategory.spentAmount.toStringAsFixed(0)}', style: TextStyle(color: AppColors.ts(isDark), fontSize: 14)),
               ],
             ),
           ),
@@ -227,31 +230,31 @@ class _BudgetDetailScreenState extends State<BudgetDetailScreen> {
           // History Section
           Expanded(
             child: Container(
-              decoration: const BoxDecoration(
-                color: AppColors.sageSurface,
-                borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
+              decoration: BoxDecoration(
+                color: AppColors.surface(isDark),
+                borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  const Padding(
-                    padding: EdgeInsets.fromLTRB(24, 24, 24, 16),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(24, 24, 24, 16),
                     child: Text(
-                      'Riwayat Pengeluaran',
+                      settingsController.getString('expenseHistory'),
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
-                        color: AppColors.textPrimary,
+                        color: AppColors.tp(isDark),
                       ),
                     ),
                   ),
                   Expanded(
                     child: categoryExpenses.isEmpty
-                        ? const Center(
+                        ? Center(
                             child: Text(
-                              'Belum ada pengeluaran\ndi kategori ini.',
+                              settingsController.getString('noExpenseCategory'),
                               textAlign: TextAlign.center,
-                              style: TextStyle(color: AppColors.textSecondary),
+                              style: TextStyle(color: AppColors.ts(isDark)),
                             ),
                           )
                         : ListView.builder(
@@ -262,7 +265,7 @@ class _BudgetDetailScreenState extends State<BudgetDetailScreen> {
                               return ListTile(
                                 contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
                                 leading: CircleAvatar(
-                                  backgroundColor: AppColors.sageBackground,
+                                  backgroundColor: AppColors.background(isDark),
                                   child: const Icon(Icons.receipt_long, color: AppColors.sagePrimary),
                                 ),
                                 title: Row(
@@ -271,7 +274,7 @@ class _BudgetDetailScreenState extends State<BudgetDetailScreen> {
                                     Expanded(
                                       child: Text(
                                         expense.title,
-                                        style: const TextStyle(fontWeight: FontWeight.w600, color: AppColors.textPrimary),
+                                        style: TextStyle(fontWeight: FontWeight.w600, color: AppColors.tp(isDark)),
                                         overflow: TextOverflow.ellipsis,
                                       ),
                                     ),
@@ -289,7 +292,7 @@ class _BudgetDetailScreenState extends State<BudgetDetailScreen> {
                                   children: [
                                     Text(
                                       DateFormat('dd MMM yyyy, HH:mm').format(expense.date),
-                                      style: const TextStyle(color: AppColors.textSecondary, fontSize: 12),
+                                      style: TextStyle(color: AppColors.ts(isDark), fontSize: 12),
                                     ),
                                     Row(
                                       mainAxisSize: MainAxisSize.min,
@@ -299,7 +302,7 @@ class _BudgetDetailScreenState extends State<BudgetDetailScreen> {
                                           padding: EdgeInsets.zero,
                                           icon: const Icon(Icons.edit, size: 18, color: AppColors.sagePrimary),
                                           onPressed: () {
-                                            _showEditExpenseDialog(context, controller, expense);
+                                            _showEditExpenseDialog(context, controller, expense, settingsController, isDark);
                                           },
                                         ),
                                         const SizedBox(width: 8),
@@ -308,7 +311,7 @@ class _BudgetDetailScreenState extends State<BudgetDetailScreen> {
                                           padding: EdgeInsets.zero,
                                           icon: const Icon(Icons.delete, size: 18, color: AppColors.warningRed),
                                           onPressed: () {
-                                            _confirmDeleteExpense(context, controller, expense.id);
+                                            _confirmDeleteExpense(context, controller, expense.id, settingsController, isDark);
                                           },
                                         ),
                                       ],

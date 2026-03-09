@@ -2,9 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import '../../controllers/budget_controller.dart';
+import '../../controllers/settings_controller.dart';
 import '../../core/theme/app_colors.dart';
 import '../../models/budget_model.dart';
-import '../../models/expense_model.dart'; // import ditambahkan
+import '../../models/expense_model.dart';
 import 'widgets/hero_card.dart';
 import 'widgets/custom_bottom_nav.dart';
 import '../expense/add_expense_sheet.dart';
@@ -17,12 +18,55 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  bool _hasCheckedFirstLaunch = false;
 
-  void _showAddExpenseSheet(BuildContext context) {
+  void _showLanguageSelectionDialog(BuildContext context, SettingsController controller, bool isDark) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) {
+        return AlertDialog(
+          backgroundColor: AppColors.surface(isDark),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          title: Text(controller.getString('firstLaunchTitle'), style: TextStyle(color: AppColors.tp(isDark), fontWeight: FontWeight.bold), textAlign: TextAlign.center),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(controller.getString('selectLanguagePrompt'), textAlign: TextAlign.center, style: TextStyle(color: AppColors.ts(isDark))),
+              const SizedBox(height: 24),
+              ListTile(
+                title: const Text('Bahasa Indonesia'),
+                leading: const Icon(Icons.language, color: AppColors.sagePrimary),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                onTap: () {
+                  controller.setLanguage('id');
+                  controller.completeFirstLaunch();
+                  Navigator.pop(context);
+                },
+              ),
+              const SizedBox(height: 8),
+              ListTile(
+                title: const Text('English (US)'),
+                leading: const Icon(Icons.language, color: AppColors.sagePrimary),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                onTap: () {
+                  controller.setLanguage('en');
+                  controller.completeFirstLaunch();
+                  Navigator.pop(context);
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  void _showAddExpenseSheet(BuildContext context, bool isDark) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: AppColors.sageSurface,
+      backgroundColor: AppColors.surface(isDark),
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
@@ -30,19 +74,19 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Future<void> _selectDate(BuildContext context, BudgetController controller) async {
+  Future<void> _selectDate(BuildContext context, BudgetController controller, bool isDark) async {
     final DateTime? picked = await showDatePicker(
       context: context,
-      initialDate: controller.selectedDate,
+      initialDate: controller.selectedDate.isAfter(DateTime.now()) ? DateTime.now() : controller.selectedDate,
       firstDate: DateTime(2000),
-      lastDate: DateTime(2101),
+      lastDate: DateTime.now(),
       builder: (context, child) {
         return Theme(
           data: Theme.of(context).copyWith(
-            colorScheme: const ColorScheme.light(
+            colorScheme: ColorScheme.light(
               primary: AppColors.sagePrimary, // header background color
               onPrimary: Colors.white, // header text color
-              onSurface: AppColors.textPrimary, // body text color
+              onSurface: AppColors.tp(isDark), // body text color
             ),
             textButtonTheme: TextButtonThemeData(
               style: TextButton.styleFrom(
@@ -59,7 +103,7 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  void _showEditExpenseDialog(BuildContext context, BudgetController controller, Expense expense) {
+  void _showEditExpenseDialog(BuildContext context, BudgetController controller, Expense expense, SettingsController settings, bool isDark) {
     final titleController = TextEditingController(text: expense.title);
     final amountController = TextEditingController(text: expense.amount.toStringAsFixed(0));
     String selectedBudgetId = expense.budgetId;
@@ -70,16 +114,16 @@ class _HomeScreenState extends State<HomeScreen> {
         return StatefulBuilder(
           builder: (context, setState) {
             return AlertDialog(
-              backgroundColor: AppColors.sageSurface,
+              backgroundColor: AppColors.surface(isDark),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-              title: const Text('Edit Pengeluaran', style: TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.bold)),
+              title: Text(settings.getString('editExpense'), style: TextStyle(color: AppColors.tp(isDark), fontWeight: FontWeight.bold)),
               content: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   DropdownButtonFormField<String>(
                     value: selectedBudgetId,
                     decoration: InputDecoration(
-                      labelText: 'Pilih Kategori Budget',
+                      labelText: settings.getString('selectBudgetCategory'),
                       border: OutlineInputBorder(borderRadius: BorderRadius.circular(16)),
                       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                     ),
@@ -101,7 +145,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   TextField(
                     controller: titleController,
                     decoration: InputDecoration(
-                      labelText: 'Nama Pengeluaran',
+                      labelText: settings.getString('expenseName'),
                       border: OutlineInputBorder(borderRadius: BorderRadius.circular(16)),
                       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                     ),
@@ -111,7 +155,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     controller: amountController,
                     keyboardType: const TextInputType.numberWithOptions(decimal: true),
                     decoration: InputDecoration(
-                      labelText: 'Nominal (Rp)',
+                      labelText: settings.getString('amount'),
                       border: OutlineInputBorder(borderRadius: BorderRadius.circular(16)),
                       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                     ),
@@ -121,7 +165,7 @@ class _HomeScreenState extends State<HomeScreen> {
               actions: [
                 TextButton(
                   onPressed: () => Navigator.pop(context),
-                  child: const Text('Batal', style: TextStyle(color: AppColors.textSecondary)),
+                  child: Text(settings.getString('cancel'), style: TextStyle(color: AppColors.ts(isDark))),
                 ),
                 ElevatedButton(
                   onPressed: () {
@@ -143,7 +187,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     foregroundColor: Colors.white,
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                   ),
-                  child: const Text('Simpan'),
+                  child: Text(settings.getString('save')),
                 ),
               ],
             );
@@ -153,21 +197,21 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  void _confirmDeleteExpense(BuildContext context, BudgetController controller, String expenseId) {
+  void _confirmDeleteExpense(BuildContext context, BudgetController controller, String expenseId, SettingsController settings, bool isDark) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        backgroundColor: AppColors.sageSurface,
+        backgroundColor: AppColors.surface(isDark),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: const Text('Hapus Pengeluaran?', style: TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.bold)),
-        content: const Text(
-          'Apakah Anda yakin ingin menghapus pengeluaran ini?\n\nDana akan dikembalikan ke sisa budget kategori.',
-          style: TextStyle(color: AppColors.textSecondary),
+        title: Text(settings.getString('deleteExpenseTitle'), style: TextStyle(color: AppColors.tp(isDark), fontWeight: FontWeight.bold)),
+        content: Text(
+          settings.getString('deleteExpenseConfirm'),
+          style: TextStyle(color: AppColors.ts(isDark)),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Batal', style: TextStyle(color: AppColors.textSecondary)),
+            child: Text(settings.getString('cancel'), style: TextStyle(color: AppColors.ts(isDark))),
           ),
           ElevatedButton(
             onPressed: () {
@@ -179,7 +223,7 @@ class _HomeScreenState extends State<HomeScreen> {
               foregroundColor: Colors.white,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
             ),
-            child: const Text('Hapus'),
+            child: Text(settings.getString('delete')),
           ),
         ],
       ),
@@ -188,6 +232,18 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final settingsController = context.watch<SettingsController>();
+    final isDark = settingsController.isDarkMode;
+
+    if (settingsController.isInitialized && !_hasCheckedFirstLaunch) {
+      _hasCheckedFirstLaunch = true;
+      if (settingsController.isFirstLaunch) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          _showLanguageSelectionDialog(context, settingsController, isDark);
+        });
+      }
+    }
+
     return Scaffold(
       extendBody: true,
       appBar: AppBar(
@@ -204,7 +260,7 @@ class _HomeScreenState extends State<HomeScreen> {
           final isToday = controller.selectedDate.year == DateTime.now().year && 
                           controller.selectedDate.month == DateTime.now().month && 
                           controller.selectedDate.day == DateTime.now().day;
-          final dateText = isToday ? 'Hari Ini' : DateFormat('dd MMM yyyy').format(controller.selectedDate);
+          final dateText = isToday ? settingsController.getString('today') : DateFormat('dd MMM yyyy').format(controller.selectedDate);
 
           return ListView(
             padding: const EdgeInsets.only(bottom: 100), // Padding ekstra agar list tidak tertutup bottom nav
@@ -217,15 +273,15 @@ class _HomeScreenState extends State<HomeScreen> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      'Pengeluaran $dateText',
-                      style: const TextStyle(
+                      '${settingsController.getString('expenses')} $dateText',
+                      style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
-                        color: AppColors.textPrimary,
+                        color: AppColors.tp(isDark),
                       ),
                     ),
                     OutlinedButton.icon(
-                      onPressed: () => _selectDate(context, controller),
+                      onPressed: () => _selectDate(context, controller, isDark),
                       icon: const Icon(Icons.calendar_today_rounded, size: 18),
                       // Mengamankan format tanggal agar tidak error null check
                       label: Text(DateFormat('dd MMM').format(controller.selectedDate)),
@@ -243,12 +299,12 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
               const SizedBox(height: 12),
               if (filteredExpenses.isEmpty)
-                const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 24.0, vertical: 32.0),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 32.0),
                   child: Center(
                     child: Text(
-                      'Belum ada pengeluaran di tanggal ini.',
-                      style: TextStyle(color: AppColors.textSecondary),
+                      settingsController.getString('noExpenseDate'),
+                      style: TextStyle(color: AppColors.ts(isDark)),
                     ),
                   ),
                 )
@@ -265,12 +321,12 @@ class _HomeScreenState extends State<HomeScreen> {
                   return Container(
                     margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 6.0),
                     decoration: BoxDecoration(
-                      color: AppColors.sageSurface,
+                      color: AppColors.surface(isDark),
                       borderRadius: BorderRadius.circular(16),
                     ),
                     child: ListTile(
                       leading: CircleAvatar(
-                        backgroundColor: AppColors.sageBackground,
+                        backgroundColor: AppColors.background(isDark),
                         child: const Icon(Icons.receipt_long, color: AppColors.sagePrimary),
                       ),
                       title: Row(
@@ -279,7 +335,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           Expanded(
                             child: Text(
                               expense.title,
-                              style: const TextStyle(fontWeight: FontWeight.w600, color: AppColors.textPrimary),
+                              style: TextStyle(fontWeight: FontWeight.w600, color: AppColors.tp(isDark)),
                               overflow: TextOverflow.ellipsis,
                             ),
                           ),
@@ -297,7 +353,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         children: [
                           Text(
                             category.name,
-                            style: const TextStyle(color: AppColors.textSecondary),
+                            style: TextStyle(color: AppColors.ts(isDark)),
                           ),
                           Row(
                             mainAxisSize: MainAxisSize.min,
@@ -307,7 +363,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 padding: EdgeInsets.zero,
                                 icon: const Icon(Icons.edit, size: 18, color: AppColors.sagePrimary),
                                 onPressed: () {
-                                  _showEditExpenseDialog(context, controller, expense);
+                                  _showEditExpenseDialog(context, controller, expense, settingsController, isDark);
                                 },
                               ),
                               const SizedBox(width: 8),
@@ -316,7 +372,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 padding: EdgeInsets.zero,
                                 icon: const Icon(Icons.delete, size: 18, color: AppColors.warningRed),
                                 onPressed: () {
-                                  _confirmDeleteExpense(context, controller, expense.id);
+                                  _confirmDeleteExpense(context, controller, expense.id, settingsController, isDark);
                                 },
                               ),
                             ],
@@ -332,7 +388,7 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       floatingActionButton: FloatingActionButton(
-        onPressed: () => _showAddExpenseSheet(context),
+        onPressed: () => _showAddExpenseSheet(context, isDark),
         backgroundColor: AppColors.sagePrimary,
         elevation: 4,
         shape: RoundedRectangleBorder(

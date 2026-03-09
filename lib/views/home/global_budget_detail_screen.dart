@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../controllers/budget_controller.dart';
+import '../../controllers/settings_controller.dart';
 import '../../models/budget_model.dart';
 import '../../core/theme/app_colors.dart';
 import 'package:intl/intl.dart';
@@ -12,6 +13,8 @@ class GlobalBudgetDetailScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final controller = context.watch<BudgetController>();
+    final settingsController = context.watch<SettingsController>();
+    final isDark = settingsController.isDarkMode;
     
     // Get all expenses
     final allExpenses = List.of(controller.expenses);
@@ -23,9 +26,9 @@ class GlobalBudgetDetailScreen extends StatelessWidget {
     final color = AppColors.getDynamicColor(percentage);
 
     return Scaffold(
-      backgroundColor: AppColors.sageBackground,
+      backgroundColor: AppColors.background(isDark),
       appBar: AppBar(
-        title: const Text('Semua Pengeluaran', style: TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.bold)),
+        title: Text(settingsController.getString('allExpenses'), style: TextStyle(color: AppColors.tp(isDark), fontWeight: FontWeight.bold)),
         backgroundColor: Colors.transparent,
         elevation: 0,
         iconTheme: const IconThemeData(color: AppColors.sagePrimary),
@@ -38,7 +41,7 @@ class GlobalBudgetDetailScreen extends StatelessWidget {
             margin: const EdgeInsets.all(24.0),
             padding: const EdgeInsets.all(24.0),
             decoration: BoxDecoration(
-              color: AppColors.sageSurface,
+              color: AppColors.surface(isDark),
               borderRadius: BorderRadius.circular(24.0),
               boxShadow: [
                 BoxShadow(
@@ -54,8 +57,8 @@ class GlobalBudgetDetailScreen extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text('Sisa Budget Total', style: TextStyle(color: AppColors.textSecondary, fontSize: 14)),
-                    Text('Total: Rp ${controller.totalAllocated.toStringAsFixed(0)}', style: const TextStyle(color: AppColors.textSecondary, fontSize: 12)),
+                    Text(settingsController.getString('totalRemainingBudget'), style: TextStyle(color: AppColors.ts(isDark), fontSize: 14)),
+                    Text('${settingsController.getString('total')} ${controller.totalAllocated.toStringAsFixed(0)}', style: TextStyle(color: AppColors.ts(isDark), fontSize: 12)),
                   ],
                 ),
                 const SizedBox(height: 8),
@@ -78,7 +81,7 @@ class GlobalBudgetDetailScreen extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 8),
-                Text('Terpakai: Rp ${controller.totalSpent.toStringAsFixed(0)}', style: const TextStyle(color: AppColors.textSecondary, fontSize: 14)),
+                Text('${settingsController.getString('spent')} ${controller.totalSpent.toStringAsFixed(0)}', style: TextStyle(color: AppColors.ts(isDark), fontSize: 14)),
               ],
             ),
           ),
@@ -86,31 +89,31 @@ class GlobalBudgetDetailScreen extends StatelessWidget {
           // History Section
           Expanded(
             child: Container(
-              decoration: const BoxDecoration(
-                color: AppColors.sageSurface,
-                borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
+              decoration: BoxDecoration(
+                color: AppColors.surface(isDark),
+                borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  const Padding(
-                    padding: EdgeInsets.fromLTRB(24, 24, 24, 16),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(24, 24, 24, 16),
                     child: Text(
-                      'Rincian Budget',
+                      settingsController.getString('budgetDetails'),
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
-                        color: AppColors.textPrimary,
+                        color: AppColors.tp(isDark),
                       ),
                     ),
                   ),
                   Expanded(
                     child: controller.categories.isEmpty
-                        ? const Center(
+                        ? Center(
                             child: Text(
-                              'Belum ada budget yang dicatat.',
+                              settingsController.getString('noBudgetRecorded'),
                               textAlign: TextAlign.center,
-                              style: TextStyle(color: AppColors.textSecondary),
+                              style: TextStyle(color: AppColors.ts(isDark)),
                             ),
                           )
                         : ListView.builder(
@@ -135,7 +138,7 @@ class GlobalBudgetDetailScreen extends StatelessWidget {
                                   margin: const EdgeInsets.only(bottom: 12),
                                   padding: const EdgeInsets.all(16),
                                   decoration: BoxDecoration(
-                                    color: AppColors.sageSurface,
+                                    color: AppColors.surface(isDark),
                                     borderRadius: BorderRadius.circular(16),
                                     border: Border.all(color: AppColors.sageSecondary.withOpacity(0.3)),
                                   ),
@@ -154,7 +157,7 @@ class GlobalBudgetDetailScreen extends StatelessWidget {
                                             ),
                                           ),
                                           Text('Rp ${cat.allocatedAmount.toStringAsFixed(0)}', 
-                                               style: const TextStyle(color: AppColors.textSecondary, fontSize: 14)),
+                                               style: TextStyle(color: AppColors.ts(isDark), fontSize: 14)),
                                         ],
                                       ),
                                       const SizedBox(height: 8),
@@ -168,7 +171,7 @@ class GlobalBudgetDetailScreen extends StatelessWidget {
                                         ),
                                       ),
                                       const SizedBox(height: 8),
-                                      Text('Sisa: Rp ${cat.remaining.toStringAsFixed(0)}', 
+                                      Text('${settingsController.getString('remaining')} ${cat.remaining.toStringAsFixed(0)}', 
                                            style: TextStyle(color: catColor, fontWeight: FontWeight.w600, fontSize: 12)),
                                     ],
                                   ),

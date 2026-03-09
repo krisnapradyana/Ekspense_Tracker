@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../controllers/budget_controller.dart';
+import '../../../controllers/settings_controller.dart';
 import '../../../core/theme/app_colors.dart';
 import '../global_budget_detail_screen.dart';
 
@@ -10,6 +11,8 @@ class HeroCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final settingsController = context.watch<SettingsController>();
+    final isDark = settingsController.isDarkMode;
     return Consumer<BudgetController>(
       builder: (context, controller, child) {
         final percentage = controller.overallPercentageSpent;
@@ -43,9 +46,9 @@ class HeroCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Text(
-                  'Sisa Budget',
-                  style: TextStyle(
+                Text(
+                  settingsController.getString('remainingBudget'),
+                  style: const TextStyle(
                     color: Colors.white70,
                     fontSize: 16,
                     fontWeight: FontWeight.w500,
@@ -76,11 +79,11 @@ class HeroCard extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      'Terpakai: Rp ${controller.totalSpent.toStringAsFixed(0)}',
+                      '${settingsController.getString('spent')} ${controller.totalSpent.toStringAsFixed(0)}',
                       style: const TextStyle(color: Colors.white70, fontSize: 12),
                     ),
                     Text(
-                      'Total: Rp ${controller.totalAllocated.toStringAsFixed(0)}',
+                      '${settingsController.getString('total')} ${controller.totalAllocated.toStringAsFixed(0)}',
                       style: const TextStyle(color: Colors.white70, fontSize: 12),
                     ),
                   ],

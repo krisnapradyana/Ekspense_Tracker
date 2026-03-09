@@ -1,18 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../../../controllers/settings_controller.dart';
 import '../../../core/theme/app_colors.dart';
-import 'budget_list_sheet.dart';
 import '../../statistics/statistics_screen.dart';
 import '../../settings/settings_screen.dart';
 
 class ExtraMenuSheet extends StatelessWidget {
   const ExtraMenuSheet({super.key});
 
-  void _openSheet(BuildContext context, Widget sheet) {
-    Navigator.pop(context); // Tutup menu ini dulu
+  void _openSheet(BuildContext context, Widget sheet, bool isDark) {
+    Navigator.pop(context);
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: AppColors.sageSurface,
+      backgroundColor: AppColors.surface(isDark),
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
@@ -21,42 +22,39 @@ class ExtraMenuSheet extends StatelessWidget {
   }
 
   void _openScreen(BuildContext context, Widget screen) {
-    Navigator.pop(context); // Tutup menu bottom sheet
+    Navigator.pop(context);
     Navigator.push(context, MaterialPageRoute(builder: (_) => screen));
   }
 
   @override
   Widget build(BuildContext context) {
+    final settingsController = context.watch<SettingsController>();
+    final isDark = settingsController.isDarkMode;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const Text(
-            'Menu Utama',
-            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
+          Text(
+            settingsController.getString('menu Utama'),
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.tp(isDark)),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 24),
           _buildMenuItem(
-            icon: Icons.account_balance_wallet_rounded,
-            title: 'Daftar Budget',
-            subtitle: 'Kelola kategori dan alokasi dana',
-            onTap: () => _openSheet(context, const BudgetListSheet()),
-          ),
-          const SizedBox(height: 12),
-          _buildMenuItem(
+            isDark: isDark,
             icon: Icons.bar_chart_rounded,
-            title: 'Statistik',
-            subtitle: 'Analisis grafik pengeluaran',
+            title: settingsController.getString('statistics'),
+            subtitle: settingsController.getString('analytics'),
             onTap: () => _openScreen(context, const StatisticsScreen()),
           ),
           const SizedBox(height: 12),
           _buildMenuItem(
+            isDark: isDark,
             icon: Icons.settings_rounded,
-            title: 'Pengaturan',
-            subtitle: 'Tentang aplikasi dan preferensi',
+            title: settingsController.getString('settings'),
+            subtitle: settingsController.getString('aboutPrefs'),
             onTap: () => _openScreen(context, const SettingsScreen()),
           ),
         ],
@@ -65,6 +63,7 @@ class ExtraMenuSheet extends StatelessWidget {
   }
 
   Widget _buildMenuItem({
+    required bool isDark,
     required IconData icon,
     required String title,
     required String subtitle,
@@ -76,7 +75,7 @@ class ExtraMenuSheet extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: AppColors.sageSurface,
+          color: AppColors.surface(isDark),
           borderRadius: BorderRadius.circular(16),
           border: Border.all(color: AppColors.sageSecondary.withOpacity(0.3)),
         ),
@@ -85,7 +84,7 @@ class ExtraMenuSheet extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: AppColors.sageBackground,
+                color: AppColors.background(isDark),
                 shape: BoxShape.circle,
               ),
               child: Icon(icon, color: AppColors.sagePrimary, size: 28),
@@ -95,13 +94,13 @@ class ExtraMenuSheet extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: AppColors.textPrimary)),
+                  Text(title, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: AppColors.tp(isDark))),
                   const SizedBox(height: 4),
-                  Text(subtitle, style: const TextStyle(fontSize: 13, color: AppColors.textSecondary)),
+                  Text(subtitle, style: TextStyle(fontSize: 13, color: AppColors.ts(isDark))),
                 ],
               ),
             ),
-            const Icon(Icons.chevron_right_rounded, color: AppColors.textSecondary),
+            Icon(Icons.chevron_right_rounded, color: AppColors.ts(isDark)),
           ],
         ),
       ),

@@ -1,15 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../../../controllers/settings_controller.dart';
 import '../../../core/theme/app_colors.dart';
 import 'extra_menu_sheet.dart';
+import 'budget_list_sheet.dart';
 
 class CustomBottomNav extends StatelessWidget {
   const CustomBottomNav({super.key});
 
-  void _showExtraMenu(BuildContext context) {
+  void _showExtraMenu(BuildContext context, bool isDark) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: AppColors.sageSurface,
+      backgroundColor: AppColors.surface(isDark),
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
@@ -19,6 +22,7 @@ class CustomBottomNav extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = context.watch<SettingsController>().isDarkMode;
     return BottomAppBar(
       shape: const WavyBottomAppBarShape(),
       clipBehavior: Clip.antiAlias,
@@ -35,12 +39,22 @@ class CustomBottomNav extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceEvenly, // Buat jarak simetris antar elemen
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              // Kiri: Tombol Home (Diganjal dengan Expanded agar posisinya mantap di tengah bukit kiri)
+              // Kiri: Tombol Budget (Diganjal dengan Expanded agar posisinya mantap di tengah bukit kiri)
               Expanded(
                 child: Center(
                   child: IconButton(
-                    icon: const Icon(Icons.home_rounded, color: Colors.white, size: 28),
-                    onPressed: () {},
+                    icon: const Icon(Icons.account_balance_wallet_rounded, color: Colors.white, size: 28),
+                    onPressed: () {
+                      showModalBottomSheet(
+                        context: context,
+                        isScrollControlled: true,
+                        backgroundColor: AppColors.surface(isDark),
+                        shape: const RoundedRectangleBorder(
+                          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+                        ),
+                        builder: (context) => const BudgetListSheet(),
+                      );
+                    },
                   ),
                 ),
               ),
@@ -51,7 +65,7 @@ class CustomBottomNav extends StatelessWidget {
                 child: Center(
                   child: IconButton(
                     icon: const Icon(Icons.grid_view_rounded, color: Colors.white, size: 28),
-                    onPressed: () => _showExtraMenu(context),
+                    onPressed: () => _showExtraMenu(context, isDark),
                   ),
                 ),
               ),
