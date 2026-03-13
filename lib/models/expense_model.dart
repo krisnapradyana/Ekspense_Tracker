@@ -14,4 +14,26 @@ class Expense {
     required this.budgetId,
     this.receiptImagePath,
   });
+
+  Map<String, dynamic> toMap() {
+    return {
+      'id': id,
+      'title': title,
+      'amount': amount,
+      'date': date.toIso8601String(),
+      'budgetId': budgetId,
+      'receiptImagePath': receiptImagePath,
+    };
+  }
+
+  factory Expense.fromMap(Map<String, dynamic> map) {
+    return Expense(
+      id: map['id'],
+      title: map['title'],
+      amount: (map['amount'] as num).toDouble(),
+      date: DateTime.parse(map['date']),
+      budgetId: map['budgetId'],
+      receiptImagePath: map['receiptImagePath'],
+    );
+  }
 }

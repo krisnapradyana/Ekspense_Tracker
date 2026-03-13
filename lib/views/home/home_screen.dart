@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
+import 'package:home_widget/home_widget.dart';
 import '../../controllers/budget_controller.dart';
 import '../../controllers/settings_controller.dart';
 import '../../core/theme/app_colors.dart';
@@ -19,6 +20,30 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   bool _hasCheckedFirstLaunch = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _checkInitialWidgetClick();
+    _listenWidgetClick();
+  }
+
+  void _checkInitialWidgetClick() async {
+    final Uri? initialUri = await HomeWidget.initiallyLaunchedFromHomeWidget();
+    if (initialUri != null) {
+      _handleWidgetClick(initialUri);
+    }
+  }
+
+  void _listenWidgetClick() {
+    HomeWidget.widgetClicked.listen(_handleWidgetClick);
+  }
+
+  void _handleWidgetClick(Uri? uri) {
+    if (uri != null && uri.scheme == 'expensetracker' && uri.host == 'add') {
+      _showAddExpenseSheet(context);
+    }
+  }
 
   void _showLanguageSelectionDialog(BuildContext context, SettingsController controller) {
     final colorScheme = Theme.of(context).colorScheme;

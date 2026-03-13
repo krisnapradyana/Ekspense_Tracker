@@ -1,4 +1,7 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:home_widget/home_widget.dart';
 import '../models/budget_model.dart';
 import '../models/expense_model.dart';
 
@@ -13,6 +16,56 @@ class BudgetController extends ChangeNotifier {
   List<BudgetCategory> get categories => _categories;
   List<Expense> get expenses => _expenses;
   DateTime get selectedDate => _selectedDate;
+
+  BudgetController() {
+    _loadData();
+  }
+
+  Future<void> _loadData() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      
+      final String? categoriesJson = prefs.getString('budget_categories');
+      if (categoriesJson != null) {
+        final List<dynamic> decoded = jsonDecode(categoriesJson);
+        _categories.clear();
+        _categories.addAll(decoded.map((item) => BudgetCategory.fromMap(item)).toList());
+      }
+      
+      final String? expensesJson = prefs.getString('budget_expenses');
+      if (expensesJson != null) {
+        final List<dynamic> decoded = jsonDecode(expensesJson);
+        _expenses.clear();
+        _expenses.addAll(decoded.map((item) => Expense.fromMap(item)).toList());
+      }
+      
+      notifyListeners();
+    } catch (e) {
+      debugPrint('Error loading data: $e');
+    }
+  }
+
+  Future<void> _saveData() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      
+      final String categoriesJson = jsonEncode(_categories.map((c) => c.toMap()).toList());
+      await prefs.setString('budget_categories', categoriesJson);
+      
+      final String expensesJson = jsonEncode(_expenses.map((e) => e.toMap()).toList());
+      await prefs.setString('budget_expenses', expensesJson);
+
+      // Update Native Widget
+      await HomeWidget.saveWidgetData<String>('remaining_budget', 'Rp ${totalRemaining.toStringAsFixed(0)}');
+      await HomeWidget.updateWidget(
+        name: 'ExpenseWidgetProvider',
+        androidName: 'ExpenseWidgetProvider',
+        iOSName: 'ExpenseWidget',
+      );
+    } catch (e) {
+      debugPrint('Error saving data: $e');
+    }
+  }
 
   // Hitungan Total Keseluruhan
   double get totalAllocated => _categories.fold(0, (sum, cat) => sum + cat.allocatedAmount);
@@ -44,6 +97,7 @@ class BudgetController extends ChangeNotifier {
     
     // Memberitahu semua View terkait untuk me-render ulang UI (termasuk update hero card & warna)
     notifyListeners();
+    _saveData();
   }
 
   /// Menambah kategori budget baru
@@ -55,6 +109,7 @@ class BudgetController extends ChangeNotifier {
     );
     _categories.add(newCategory);
     notifyListeners();
+    _saveData();
   }
 
   /// Memperbarui kategori budget
@@ -69,6 +124,7 @@ class BudgetController extends ChangeNotifier {
         spentAmount: oldSpent,
       );
       notifyListeners();
+      _saveData();
     }
   }
 
@@ -77,6 +133,7 @@ class BudgetController extends ChangeNotifier {
     _categories.removeWhere((c) => c.id == id);
     _expenses.removeWhere((e) => e.budgetId == id);
     notifyListeners();
+    _saveData();
   }
 
   /// Memperbarui pengeluaran dan penyesuaian budget
@@ -101,6 +158,7 @@ class BudgetController extends ChangeNotifier {
       }
       
       notifyListeners();
+      _saveData();
     }
   }
 
@@ -116,5 +174,6 @@ class BudgetController extends ChangeNotifier {
     
     _expenses.removeWhere((e) => e.id == expenseId);
     notifyListeners();
+    _saveData();
   }
 }
