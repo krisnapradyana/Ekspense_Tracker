@@ -5,16 +5,35 @@ import 'controllers/settings_controller.dart';
 import 'core/theme/app_theme.dart';
 import 'views/home/home_screen.dart';
 
-void main() {
-  runApp(
-    MultiProvider(
-      providers: [
-        ChangeNotifierProvider(create: (_) => BudgetController()),
-        ChangeNotifierProvider(create: (_) => SettingsController()),
-      ],
-      child: const ExpenseTrackerApp(),
-    ),
-  );
+import 'package:home_widget/home_widget.dart';
+import 'views/widget/widget_app.dart';
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  
+  final Uri? initialUri = await HomeWidget.initiallyLaunchedFromHomeWidget();
+  
+  if (initialUri != null && initialUri.scheme == 'expensetracker' && initialUri.host == 'widget') {
+    runApp(
+      MultiProvider(
+        providers: [
+          ChangeNotifierProvider(create: (_) => BudgetController()),
+          ChangeNotifierProvider(create: (_) => SettingsController()),
+        ],
+        child: WidgetApp(initialUri: initialUri),
+      ),
+    );
+  } else {
+    runApp(
+      MultiProvider(
+        providers: [
+          ChangeNotifierProvider(create: (_) => BudgetController()),
+          ChangeNotifierProvider(create: (_) => SettingsController()),
+        ],
+        child: const ExpenseTrackerApp(),
+      ),
+    );
+  }
 }
 
 class ExpenseTrackerApp extends StatelessWidget {

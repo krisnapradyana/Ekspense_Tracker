@@ -12,10 +12,12 @@ class BudgetController extends ChangeNotifier {
 
   final List<Expense> _expenses = [];
   DateTime _selectedDate = DateTime.now();
+  String _selectedWidgetBudgetId = 'all';
 
   List<BudgetCategory> get categories => _categories;
   List<Expense> get expenses => _expenses;
   DateTime get selectedDate => _selectedDate;
+  String get selectedWidgetBudgetId => _selectedWidgetBudgetId;
 
   BudgetController() {
     _loadData();
@@ -39,6 +41,11 @@ class BudgetController extends ChangeNotifier {
         _expenses.addAll(decoded.map((item) => Expense.fromMap(item)).toList());
       }
       
+      final String? widgetBudget = prefs.getString('selected_widget_budget_id');
+      if (widgetBudget != null) {
+        _selectedWidgetBudgetId = widgetBudget;
+      }
+      
       notifyListeners();
     } catch (e) {
       debugPrint('Error loading data: $e');
@@ -55,15 +62,54 @@ class BudgetController extends ChangeNotifier {
       final String expensesJson = jsonEncode(_expenses.map((e) => e.toMap()).toList());
       await prefs.setString('budget_expenses', expensesJson);
 
-      // Update Native Widget
-      await HomeWidget.saveWidgetData<String>('remaining_budget', 'Rp ${totalRemaining.toStringAsFixed(0)}');
+      await _updateNativeWidget();
+    } catch (e) {
+      debugPrint('Error saving data: $e');
+    }
+  }
+
+  Future<void> _updateNativeWidget() async {
+    try {
+      String amountText = '';
+      String titleText = '';
+
+      if (_selectedWidgetBudgetId == 'all' || _selectedWidgetBudgetId.isEmpty) {
+        amountText = 'Rp ${totalRemaining.toStringAsFixed(0)}';
+        titleText = 'Sisa Budget';
+      } else {
+        final categoryIndex = _categories.indexWhere((c) => c.id == _selectedWidgetBudgetId);
+        if (categoryIndex != -1) {
+          final category = _categories[categoryIndex];
+          final remaining = category.allocatedAmount - category.spentAmount;
+          amountText = 'Rp ${remaining.toStringAsFixed(0)}';
+          titleText = category.name;
+        } else {
+          amountText = 'Rp ${totalRemaining.toStringAsFixed(0)}';
+          titleText = 'Sisa Budget';
+        }
+      }
+
+      await HomeWidget.saveWidgetData<String>('remaining_budget', amountText);
+      await HomeWidget.saveWidgetData<String>('widget_title', titleText);
       await HomeWidget.updateWidget(
         name: 'ExpenseWidgetProvider',
         androidName: 'ExpenseWidgetProvider',
         iOSName: 'ExpenseWidget',
       );
     } catch (e) {
-      debugPrint('Error saving data: $e');
+      debugPrint('Error updating native widget: $e');
+    }
+  }
+  
+  Future<void> updateWidgetSelection(String budgetId) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('selected_widget_budget_id', budgetId);
+      _selectedWidgetBudgetId = budgetId;
+      notifyListeners();
+      await _updateNativeWidget();
+    } catch (e) {
+      debugPrint('Error saving widget selection: $e');
     }
   }
 

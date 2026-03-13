@@ -22,13 +22,20 @@ class ExpenseWidgetProvider : HomeWidgetProvider() {
                 setTextViewText(R.id.widget_amount, amount)
                 
                 // Deep link to add expense
-                val pendingIntent = HomeWidgetLaunchIntent.getActivity(
+                val addIntent = HomeWidgetLaunchIntent.getActivity(
                     context,
-                    MainActivity::class.java,
-                    Uri.parse("expensetracker://add")
+                    WidgetFlutterActivity::class.java,
+                    Uri.parse("expensetracker://widget/add")
                 )
-                setOnClickPendingIntent(R.id.widget_button, pendingIntent)
-                setOnClickPendingIntent(R.id.widget_root, pendingIntent)
+                setOnClickPendingIntent(R.id.widget_button, addIntent)
+                
+                // Deep link to list/budget selection
+                val listIntent = HomeWidgetLaunchIntent.getActivity(
+                    context,
+                    WidgetFlutterActivity::class.java,
+                    Uri.parse("expensetracker://widget/list")
+                )
+                setOnClickPendingIntent(R.id.widget_root, listIntent)
                 
                 // Set update time
                 val currentTime = java.text.SimpleDateFormat("HH:mm", java.util.Locale.getDefault()).format(java.util.Date())

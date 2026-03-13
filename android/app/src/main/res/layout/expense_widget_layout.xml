@@ -12,8 +12,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Sisa Budget"
-        android:textColor="#FFFFFF"
-        android:alpha="0.7"
+        android:textColor="#B3FFFFFF"
         android:textSize="14sp" />
 
     <TextView
@@ -26,7 +25,7 @@
         android:textStyle="bold"
         android:layout_marginTop="4dp" />
 
-    <View
+    <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1" />
@@ -43,8 +42,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="Update..."
-            android:textColor="#FFFFFF"
-            android:alpha="0.7"
+            android:textColor="#B3FFFFFF"
             android:textSize="12sp" />
 
         <ImageButton
@@ -52,9 +50,8 @@
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:background="@drawable/widget_button_background"
-            android:src="@android:drawable/ic_input_add"
-            android:contentDescription="Add Expense"
-            android:tint="#789B84" />
+            android:src="@drawable/ic_add_expense"
+            android:contentDescription="Add Expense" />
     </LinearLayout>
 
 </LinearLayout>
