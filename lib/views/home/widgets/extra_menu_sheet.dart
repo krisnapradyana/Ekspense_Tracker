@@ -8,19 +8,6 @@ import '../../settings/settings_screen.dart';
 class ExtraMenuSheet extends StatelessWidget {
   const ExtraMenuSheet({super.key});
 
-  void _openSheet(BuildContext context, Widget sheet, bool isDark) {
-    Navigator.pop(context);
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: AppColors.surface(isDark),
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-      ),
-      builder: (context) => sheet,
-    );
-  }
-
   void _openScreen(BuildContext context, Widget screen) {
     Navigator.pop(context);
     Navigator.push(context, MaterialPageRoute(builder: (_) => screen));
@@ -29,7 +16,6 @@ class ExtraMenuSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final settingsController = context.watch<SettingsController>();
-    final isDark = settingsController.isDarkMode;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
       child: Column(
@@ -38,12 +24,12 @@ class ExtraMenuSheet extends StatelessWidget {
         children: [
           Text(
             settingsController.getString('menu Utama'),
-            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.tp(isDark)),
+            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 24),
           _buildMenuItem(
-            isDark: isDark,
+            context: context,
             icon: Icons.bar_chart_rounded,
             title: settingsController.getString('statistics'),
             subtitle: settingsController.getString('analytics'),
@@ -51,7 +37,7 @@ class ExtraMenuSheet extends StatelessWidget {
           ),
           const SizedBox(height: 12),
           _buildMenuItem(
-            isDark: isDark,
+            context: context,
             icon: Icons.settings_rounded,
             title: settingsController.getString('settings'),
             subtitle: settingsController.getString('aboutPrefs'),
@@ -63,19 +49,20 @@ class ExtraMenuSheet extends StatelessWidget {
   }
 
   Widget _buildMenuItem({
-    required bool isDark,
+    required BuildContext context,
     required IconData icon,
     required String title,
     required String subtitle,
     required VoidCallback onTap,
   }) {
+    final colorScheme = Theme.of(context).colorScheme;
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(16),
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: AppColors.surface(isDark),
+          color: colorScheme.surface,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(color: AppColors.sageSecondary.withOpacity(0.3)),
         ),
@@ -84,7 +71,7 @@ class ExtraMenuSheet extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: AppColors.background(isDark),
+                color: Theme.of(context).scaffoldBackgroundColor,
                 shape: BoxShape.circle,
               ),
               child: Icon(icon, color: AppColors.sagePrimary, size: 28),
@@ -94,13 +81,13 @@ class ExtraMenuSheet extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(title, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: AppColors.tp(isDark))),
+                  Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
                   const SizedBox(height: 4),
-                  Text(subtitle, style: TextStyle(fontSize: 13, color: AppColors.ts(isDark))),
+                  Text(subtitle, style: TextStyle(fontSize: 13, color: colorScheme.onSurfaceVariant)),
                 ],
               ),
             ),
-            Icon(Icons.chevron_right_rounded, color: AppColors.ts(isDark)),
+            Icon(Icons.chevron_right_rounded, color: colorScheme.onSurfaceVariant),
           ],
         ),
       ),

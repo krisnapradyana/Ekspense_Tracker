@@ -16,21 +16,10 @@ class AppColors {
   static const Color darkTextPrimary = Color(0xFFE2E8E4);
   static const Color darkTextSecondary = Color(0xFF9AB3A2);
 
-  // Warning Colors (same for both modes)
+  // ─── Warning Colors (same for both modes) ───
   static const Color warningRed = Color(0xFFD98A84);
   static const Color warningBackground = Color(0xFFFFF5F4);
 
-  // ─── Legacy static accessors (light mode defaults) ───
-  static const Color sageBackground = lightBackground;
-  static const Color sageSurface = lightSurface;
-  static const Color textPrimary = lightTextPrimary;
-  static const Color textSecondary = lightTextSecondary;
-
-  // ─── Dynamic color accessors ───
-  static Color background(bool isDark) => isDark ? darkBackground : lightBackground;
-  static Color surface(bool isDark) => isDark ? darkSurface : lightSurface;
-  static Color tp(bool isDark) => isDark ? darkTextPrimary : lightTextPrimary;
-  static Color ts(bool isDark) => isDark ? darkTextSecondary : lightTextSecondary;
 
   /// Menghitung warna dinamis berdasarkan persentase budget yang terpakai.
   static Color getDynamicColor(double percentageSpent) {

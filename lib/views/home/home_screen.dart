@@ -20,19 +20,27 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   bool _hasCheckedFirstLaunch = false;
 
-  void _showLanguageSelectionDialog(BuildContext context, SettingsController controller, bool isDark) {
+  void _showLanguageSelectionDialog(BuildContext context, SettingsController controller) {
+    final colorScheme = Theme.of(context).colorScheme;
     showDialog(
       context: context,
       barrierDismissible: false,
       builder: (context) {
         return AlertDialog(
-          backgroundColor: AppColors.surface(isDark),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-          title: Text(controller.getString('firstLaunchTitle'), style: TextStyle(color: AppColors.tp(isDark), fontWeight: FontWeight.bold), textAlign: TextAlign.center),
+          title: Text(
+            controller.getString('firstLaunchTitle'),
+            style: const TextStyle(fontWeight: FontWeight.bold),
+            textAlign: TextAlign.center,
+          ),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text(controller.getString('selectLanguagePrompt'), textAlign: TextAlign.center, style: TextStyle(color: AppColors.ts(isDark))),
+              Text(
+                controller.getString('selectLanguagePrompt'),
+                textAlign: TextAlign.center,
+                style: TextStyle(color: colorScheme.onSurfaceVariant),
+              ),
               const SizedBox(height: 24),
               ListTile(
                 title: const Text('Bahasa Indonesia'),
@@ -62,11 +70,10 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  void _showAddExpenseSheet(BuildContext context, bool isDark) {
+  void _showAddExpenseSheet(BuildContext context) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: AppColors.surface(isDark),
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
@@ -74,24 +81,21 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Future<void> _selectDate(BuildContext context, BudgetController controller, bool isDark) async {
+  Future<void> _selectDate(BuildContext context, BudgetController controller) async {
     final DateTime? picked = await showDatePicker(
       context: context,
-      initialDate: controller.selectedDate.isAfter(DateTime.now()) ? DateTime.now() : controller.selectedDate,
+      initialDate: controller.selectedDate.isAfter(DateTime.now())
+          ? DateTime.now()
+          : controller.selectedDate,
       firstDate: DateTime(2000),
       lastDate: DateTime.now(),
       builder: (context, child) {
         return Theme(
           data: Theme.of(context).copyWith(
             colorScheme: ColorScheme.light(
-              primary: AppColors.sagePrimary, // header background color
-              onPrimary: Colors.white, // header text color
-              onSurface: AppColors.tp(isDark), // body text color
-            ),
-            textButtonTheme: TextButtonThemeData(
-              style: TextButton.styleFrom(
-                foregroundColor: AppColors.sagePrimary, // button text color
-              ),
+              primary: AppColors.sagePrimary,
+              onPrimary: Colors.white,
+              onSurface: Theme.of(context).colorScheme.onSurface,
             ),
           ),
           child: child!,
@@ -103,7 +107,7 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  void _showEditExpenseDialog(BuildContext context, BudgetController controller, Expense expense, SettingsController settings, bool isDark) {
+  void _showEditExpenseDialog(BuildContext context, BudgetController controller, Expense expense, SettingsController settings) {
     final titleController = TextEditingController(text: expense.title);
     final amountController = TextEditingController(text: expense.amount.toStringAsFixed(0));
     String selectedBudgetId = expense.budgetId;
@@ -114,9 +118,8 @@ class _HomeScreenState extends State<HomeScreen> {
         return StatefulBuilder(
           builder: (context, setState) {
             return AlertDialog(
-              backgroundColor: AppColors.surface(isDark),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-              title: Text(settings.getString('editExpense'), style: TextStyle(color: AppColors.tp(isDark), fontWeight: FontWeight.bold)),
+              title: Text(settings.getString('editExpense'), style: const TextStyle(fontWeight: FontWeight.bold)),
               content: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -165,7 +168,7 @@ class _HomeScreenState extends State<HomeScreen> {
               actions: [
                 TextButton(
                   onPressed: () => Navigator.pop(context),
-                  child: Text(settings.getString('cancel'), style: TextStyle(color: AppColors.ts(isDark))),
+                  child: Text(settings.getString('cancel'), style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)),
                 ),
                 ElevatedButton(
                   onPressed: () {
@@ -197,21 +200,21 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  void _confirmDeleteExpense(BuildContext context, BudgetController controller, String expenseId, SettingsController settings, bool isDark) {
+  void _confirmDeleteExpense(BuildContext context, BudgetController controller, String expenseId, SettingsController settings) {
+    final colorScheme = Theme.of(context).colorScheme;
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        backgroundColor: AppColors.surface(isDark),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: Text(settings.getString('deleteExpenseTitle'), style: TextStyle(color: AppColors.tp(isDark), fontWeight: FontWeight.bold)),
+        title: Text(settings.getString('deleteExpenseTitle'), style: const TextStyle(fontWeight: FontWeight.bold)),
         content: Text(
           settings.getString('deleteExpenseConfirm'),
-          style: TextStyle(color: AppColors.ts(isDark)),
+          style: TextStyle(color: colorScheme.onSurfaceVariant),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text(settings.getString('cancel'), style: TextStyle(color: AppColors.ts(isDark))),
+            child: Text(settings.getString('cancel'), style: TextStyle(color: colorScheme.onSurfaceVariant)),
           ),
           ElevatedButton(
             onPressed: () {
@@ -233,16 +236,17 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     final settingsController = context.watch<SettingsController>();
-    final isDark = settingsController.isDarkMode;
 
     if (settingsController.isInitialized && !_hasCheckedFirstLaunch) {
       _hasCheckedFirstLaunch = true;
       if (settingsController.isFirstLaunch) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
-          _showLanguageSelectionDialog(context, settingsController, isDark);
+          _showLanguageSelectionDialog(context, settingsController);
         });
       }
     }
+
+    final colorScheme = Theme.of(context).colorScheme;
 
     return Scaffold(
       extendBody: true,
@@ -274,14 +278,13 @@ class _HomeScreenState extends State<HomeScreen> {
                   children: [
                     Text(
                       '${settingsController.getString('expenses')} $dateText',
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
-                        color: AppColors.tp(isDark),
                       ),
                     ),
                     OutlinedButton.icon(
-                      onPressed: () => _selectDate(context, controller, isDark),
+                      onPressed: () => _selectDate(context, controller),
                       icon: const Icon(Icons.calendar_today_rounded, size: 18),
                       // Mengamankan format tanggal agar tidak error null check
                       label: Text(DateFormat('dd MMM').format(controller.selectedDate)),
@@ -304,7 +307,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   child: Center(
                     child: Text(
                       settingsController.getString('noExpenseDate'),
-                      style: TextStyle(color: AppColors.ts(isDark)),
+                      style: TextStyle(color: colorScheme.onSurfaceVariant),
                     ),
                   ),
                 )
@@ -321,12 +324,12 @@ class _HomeScreenState extends State<HomeScreen> {
                   return Container(
                     margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 6.0),
                     decoration: BoxDecoration(
-                      color: AppColors.surface(isDark),
+                      color: colorScheme.surface,
                       borderRadius: BorderRadius.circular(16),
                     ),
                     child: ListTile(
                       leading: CircleAvatar(
-                        backgroundColor: AppColors.background(isDark),
+                        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
                         child: const Icon(Icons.receipt_long, color: AppColors.sagePrimary),
                       ),
                       title: Row(
@@ -335,7 +338,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           Expanded(
                             child: Text(
                               expense.title,
-                              style: TextStyle(fontWeight: FontWeight.w600, color: AppColors.tp(isDark)),
+                              style: const TextStyle(fontWeight: FontWeight.w600),
                               overflow: TextOverflow.ellipsis,
                             ),
                           ),
@@ -353,7 +356,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         children: [
                           Text(
                             category.name,
-                            style: TextStyle(color: AppColors.ts(isDark)),
+                            style: TextStyle(color: colorScheme.onSurfaceVariant),
                           ),
                           Row(
                             mainAxisSize: MainAxisSize.min,
@@ -363,7 +366,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 padding: EdgeInsets.zero,
                                 icon: const Icon(Icons.edit, size: 18, color: AppColors.sagePrimary),
                                 onPressed: () {
-                                  _showEditExpenseDialog(context, controller, expense, settingsController, isDark);
+                                  _showEditExpenseDialog(context, controller, expense, settingsController);
                                 },
                               ),
                               const SizedBox(width: 8),
@@ -372,7 +375,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 padding: EdgeInsets.zero,
                                 icon: const Icon(Icons.delete, size: 18, color: AppColors.warningRed),
                                 onPressed: () {
-                                  _confirmDeleteExpense(context, controller, expense.id, settingsController, isDark);
+                                  _confirmDeleteExpense(context, controller, expense.id, settingsController);
                                 },
                               ),
                             ],
@@ -388,7 +391,7 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       floatingActionButton: FloatingActionButton(
-        onPressed: () => _showAddExpenseSheet(context, isDark),
+        onPressed: () => _showAddExpenseSheet(context),
         backgroundColor: AppColors.sagePrimary,
         elevation: 4,
         shape: RoundedRectangleBorder(

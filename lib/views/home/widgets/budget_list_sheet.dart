@@ -146,7 +146,7 @@ class _BudgetListSheetState extends State<BudgetListSheet> {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: Text(settings.getString('cancel'), style: TextStyle(color: AppColors.tp(isDark))),
+              child: Text(settings.getString('cancel'), style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
             ),
             ElevatedButton(
               onPressed: () {
@@ -169,7 +169,7 @@ class _BudgetListSheetState extends State<BudgetListSheet> {
   Widget build(BuildContext context) {
     final controller = context.watch<BudgetController>();
     final settingsController = context.watch<SettingsController>();
-    final isDark = settingsController.isDarkMode;
+    final colorScheme = Theme.of(context).colorScheme;
     
     return Container(
       constraints: BoxConstraints(
@@ -185,7 +185,7 @@ class _BudgetListSheetState extends State<BudgetListSheet> {
             children: [
               Text(
                 settingsController.getString('budgetList'),
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.tp(isDark)),
+                style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               ),
               IconButton(
                 onPressed: () => _showAddBudgetDialog(settingsController),
@@ -200,7 +200,7 @@ class _BudgetListSheetState extends State<BudgetListSheet> {
                     child: Text(
                       settingsController.getString('noBudgetsYet'),
                       textAlign: TextAlign.center,
-                      style: TextStyle(color: AppColors.ts(isDark)),
+                      style: TextStyle(color: colorScheme.onSurfaceVariant),
                     ),
                   )
                 : ListView.builder(
@@ -228,7 +228,7 @@ class _BudgetListSheetState extends State<BudgetListSheet> {
                     margin: const EdgeInsets.only(bottom: 12),
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color: AppColors.surface(isDark),
+                      color: colorScheme.surface,
                       borderRadius: BorderRadius.circular(16),
                       border: Border.all(color: AppColors.sageSecondary.withOpacity(0.3)),
                     ),
@@ -247,7 +247,7 @@ class _BudgetListSheetState extends State<BudgetListSheet> {
                             ),
                           ),
                           Text('Rp ${cat.allocatedAmount.toStringAsFixed(0)}', 
-                               style: TextStyle(color: AppColors.ts(isDark), fontSize: 14)),
+                               style: TextStyle(color: colorScheme.onSurfaceVariant, fontSize: 14)),
                         ],
                       ),
                       const SizedBox(height: 8),

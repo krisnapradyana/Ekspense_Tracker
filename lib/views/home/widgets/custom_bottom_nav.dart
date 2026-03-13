@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import '../../../controllers/settings_controller.dart';
 import '../../../core/theme/app_colors.dart';
 import 'extra_menu_sheet.dart';
 import 'budget_list_sheet.dart';
@@ -8,11 +6,10 @@ import 'budget_list_sheet.dart';
 class CustomBottomNav extends StatelessWidget {
   const CustomBottomNav({super.key});
 
-  void _showExtraMenu(BuildContext context, bool isDark) {
+  void _showExtraMenu(BuildContext context) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: AppColors.surface(isDark),
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
@@ -22,7 +19,6 @@ class CustomBottomNav extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = context.watch<SettingsController>().isDarkMode;
     return BottomAppBar(
       shape: const WavyBottomAppBarShape(),
       clipBehavior: Clip.antiAlias,
@@ -48,7 +44,6 @@ class CustomBottomNav extends StatelessWidget {
                       showModalBottomSheet(
                         context: context,
                         isScrollControlled: true,
-                        backgroundColor: AppColors.surface(isDark),
                         shape: const RoundedRectangleBorder(
                           borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
                         ),
@@ -65,7 +60,7 @@ class CustomBottomNav extends StatelessWidget {
                 child: Center(
                   child: IconButton(
                     icon: const Icon(Icons.grid_view_rounded, color: Colors.white, size: 28),
-                    onPressed: () => _showExtraMenu(context, isDark),
+                    onPressed: () => _showExtraMenu(context),
                   ),
                 ),
               ),

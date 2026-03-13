@@ -2,9 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../controllers/budget_controller.dart';
 import '../../controllers/settings_controller.dart';
-import '../../models/budget_model.dart';
 import '../../core/theme/app_colors.dart';
-import 'package:intl/intl.dart';
 import 'budget_detail_screen.dart';
 
 class GlobalBudgetDetailScreen extends StatelessWidget {
@@ -14,7 +12,7 @@ class GlobalBudgetDetailScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final controller = context.watch<BudgetController>();
     final settingsController = context.watch<SettingsController>();
-    final isDark = settingsController.isDarkMode;
+    final colorScheme = Theme.of(context).colorScheme;
     
     // Get all expenses
     final allExpenses = List.of(controller.expenses);
@@ -26,12 +24,13 @@ class GlobalBudgetDetailScreen extends StatelessWidget {
     final color = AppColors.getDynamicColor(percentage);
 
     return Scaffold(
-      backgroundColor: AppColors.background(isDark),
       appBar: AppBar(
-        title: Text(settingsController.getString('allExpenses'), style: TextStyle(color: AppColors.tp(isDark), fontWeight: FontWeight.bold)),
+        title: Text(
+          settingsController.getString('allExpenses'),
+          style: const TextStyle(fontWeight: FontWeight.bold),
+        ),
         backgroundColor: Colors.transparent,
         elevation: 0,
-        iconTheme: const IconThemeData(color: AppColors.sagePrimary),
         centerTitle: true,
       ),
       body: Column(
@@ -41,7 +40,7 @@ class GlobalBudgetDetailScreen extends StatelessWidget {
             margin: const EdgeInsets.all(24.0),
             padding: const EdgeInsets.all(24.0),
             decoration: BoxDecoration(
-              color: AppColors.surface(isDark),
+              color: colorScheme.surface,
               borderRadius: BorderRadius.circular(24.0),
               boxShadow: [
                 BoxShadow(
@@ -57,8 +56,14 @@ class GlobalBudgetDetailScreen extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(settingsController.getString('totalRemainingBudget'), style: TextStyle(color: AppColors.ts(isDark), fontSize: 14)),
-                    Text('${settingsController.getString('total')} ${controller.totalAllocated.toStringAsFixed(0)}', style: TextStyle(color: AppColors.ts(isDark), fontSize: 12)),
+                    Text(
+                      settingsController.getString('totalRemainingBudget'),
+                      style: TextStyle(color: colorScheme.onSurfaceVariant, fontSize: 14),
+                    ),
+                    Text(
+                      '${settingsController.getString('total')} ${controller.totalAllocated.toStringAsFixed(0)}',
+                      style: TextStyle(color: colorScheme.onSurfaceVariant, fontSize: 12),
+                    ),
                   ],
                 ),
                 const SizedBox(height: 8),
@@ -81,7 +86,10 @@ class GlobalBudgetDetailScreen extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 8),
-                Text('${settingsController.getString('spent')} ${controller.totalSpent.toStringAsFixed(0)}', style: TextStyle(color: AppColors.ts(isDark), fontSize: 14)),
+                Text(
+                  '${settingsController.getString('spent')} ${controller.totalSpent.toStringAsFixed(0)}',
+                  style: TextStyle(color: colorScheme.onSurfaceVariant, fontSize: 14),
+                ),
               ],
             ),
           ),
@@ -90,20 +98,19 @@ class GlobalBudgetDetailScreen extends StatelessWidget {
           Expanded(
             child: Container(
               decoration: BoxDecoration(
-                color: AppColors.surface(isDark),
+                color: colorScheme.surface,
                 borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Padding(
+                   Padding(
                     padding: const EdgeInsets.fromLTRB(24, 24, 24, 16),
                     child: Text(
                       settingsController.getString('budgetDetails'),
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
-                        color: AppColors.tp(isDark),
                       ),
                     ),
                   ),
@@ -113,7 +120,7 @@ class GlobalBudgetDetailScreen extends StatelessWidget {
                             child: Text(
                               settingsController.getString('noBudgetRecorded'),
                               textAlign: TextAlign.center,
-                              style: TextStyle(color: AppColors.ts(isDark)),
+                              style: TextStyle(color: colorScheme.onSurfaceVariant),
                             ),
                           )
                         : ListView.builder(
@@ -138,7 +145,7 @@ class GlobalBudgetDetailScreen extends StatelessWidget {
                                   margin: const EdgeInsets.only(bottom: 12),
                                   padding: const EdgeInsets.all(16),
                                   decoration: BoxDecoration(
-                                    color: AppColors.surface(isDark),
+                                    color: colorScheme.surface,
                                     borderRadius: BorderRadius.circular(16),
                                     border: Border.all(color: AppColors.sageSecondary.withOpacity(0.3)),
                                   ),
@@ -156,8 +163,10 @@ class GlobalBudgetDetailScreen extends StatelessWidget {
                                               overflow: TextOverflow.ellipsis,
                                             ),
                                           ),
-                                          Text('Rp ${cat.allocatedAmount.toStringAsFixed(0)}', 
-                                               style: TextStyle(color: AppColors.ts(isDark), fontSize: 14)),
+                                          Text(
+                                            'Rp ${cat.allocatedAmount.toStringAsFixed(0)}', 
+                                            style: TextStyle(color: colorScheme.onSurfaceVariant, fontSize: 14),
+                                          ),
                                         ],
                                       ),
                                       const SizedBox(height: 8),
@@ -171,8 +180,10 @@ class GlobalBudgetDetailScreen extends StatelessWidget {
                                         ),
                                       ),
                                       const SizedBox(height: 8),
-                                      Text('${settingsController.getString('remaining')} ${cat.remaining.toStringAsFixed(0)}', 
-                                           style: TextStyle(color: catColor, fontWeight: FontWeight.w600, fontSize: 12)),
+                                      Text(
+                                        '${settingsController.getString('remaining')} ${cat.remaining.toStringAsFixed(0)}', 
+                                        style: TextStyle(color: catColor, fontWeight: FontWeight.w600, fontSize: 12),
+                                      ),
                                     ],
                                   ),
                                 ),

@@ -12,7 +12,6 @@ class HeroCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final settingsController = context.watch<SettingsController>();
-    final isDark = settingsController.isDarkMode;
     return Consumer<BudgetController>(
       builder: (context, controller, child) {
         final percentage = controller.overallPercentageSpent;

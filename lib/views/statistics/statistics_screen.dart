@@ -13,16 +13,17 @@ class StatisticsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final controller = context.watch<BudgetController>();
     final settingsController = context.watch<SettingsController>();
-    final isDark = settingsController.isDarkMode;
+    final colorScheme = Theme.of(context).colorScheme;
     final categories = controller.categories;
 
     return Scaffold(
-      backgroundColor: AppColors.background(isDark),
       appBar: AppBar(
-        title: Text(settingsController.getString('statistics'), style: TextStyle(color: AppColors.tp(isDark), fontWeight: FontWeight.bold)),
+        title: Text(
+          settingsController.getString('statistics'),
+          style: const TextStyle(fontWeight: FontWeight.bold),
+        ),
         backgroundColor: Colors.transparent,
         elevation: 0,
-        iconTheme: const IconThemeData(color: AppColors.sagePrimary),
         centerTitle: true,
       ),
       body: SingleChildScrollView(
@@ -32,17 +33,22 @@ class StatisticsScreen extends StatelessWidget {
           children: [
             Text(
               settingsController.getString('allocatedVsSpent'),
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.tp(isDark)),
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 24),
             if (categories.isEmpty)
-              Center(child: Text(settingsController.getString('noBudgetData'), style: TextStyle(color: AppColors.ts(isDark))))
+              Center(
+                child: Text(
+                  settingsController.getString('noBudgetData'),
+                  style: TextStyle(color: colorScheme.onSurfaceVariant),
+                ),
+              )
             else
               Container(
                 height: 300,
                 padding: const EdgeInsets.only(top: 24, right: 16, left: 0, bottom: 0),
                 decoration: BoxDecoration(
-                  color: AppColors.surface(isDark),
+                  color: colorScheme.surface,
                   borderRadius: BorderRadius.circular(20),
                   boxShadow: [
                     BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, 4)),
@@ -76,7 +82,10 @@ class StatisticsScreen extends StatelessWidget {
                               final shortName = name.length > 8 ? '${name.substring(0, 6)}..' : name;
                               return Padding(
                                 padding: const EdgeInsets.only(top: 8.0),
-                                child: Text(shortName, style: const TextStyle(fontSize: 10, color: AppColors.ts(isDark))),
+                                child: Text(
+                                  shortName,
+                                  style: TextStyle(fontSize: 10, color: colorScheme.onSurfaceVariant),
+                                ),
                               );
                             }
                             return const Text('');
@@ -99,7 +108,10 @@ class StatisticsScreen extends StatelessWidget {
                             } else {
                               text = value.toStringAsFixed(0);
                             }
-                            return Text(text, style: const TextStyle(fontSize: 10, color: AppColors.ts(isDark)));
+                            return Text(
+                              text,
+                              style: TextStyle(fontSize: 10, color: colorScheme.onSurfaceVariant),
+                            );
                           },
                         ),
                       ),
@@ -141,14 +153,26 @@ class StatisticsScreen extends StatelessWidget {
             const SizedBox(height: 32),
             Text(
               settingsController.getString('legend'),
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.tp(isDark)),
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 12),
-            _buildLegend(color: AppColors.sageSecondary.withOpacity(0.4), text: settingsController.getString('totalBudgetAllocation')),
+            _buildLegend(
+              context: context,
+              color: AppColors.sageSecondary.withOpacity(0.4),
+              text: settingsController.getString('totalBudgetAllocation'),
+            ),
             const SizedBox(height: 8),
-            _buildLegend(color: AppColors.sagePrimary, text: settingsController.getString('spentSafe')),
+            _buildLegend(
+              context: context,
+              color: AppColors.sagePrimary,
+              text: settingsController.getString('spentSafe'),
+            ),
             const SizedBox(height: 8),
-            _buildLegend(color: AppColors.warningRed, text: settingsController.getString('spentWarning')),
+            _buildLegend(
+              context: context,
+              color: AppColors.warningRed,
+              text: settingsController.getString('spentWarning'),
+            ),
           ],
         ),
       ),
@@ -166,7 +190,8 @@ class StatisticsScreen extends StatelessWidget {
     return maxVal * 1.2;
   }
 
-  Widget _buildLegend({required Color color, required String text}) {
+  Widget _buildLegend({required BuildContext context, required Color color, required String text}) {
+    final colorScheme = Theme.of(context).colorScheme;
     return Row(
       children: [
         Container(
@@ -175,7 +200,10 @@ class StatisticsScreen extends StatelessWidget {
           decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(4)),
         ),
         const SizedBox(width: 8),
-        Text(text, style: TextStyle(color: AppColors.ts(isDark), fontSize: 13)),
+        Text(
+          text,
+          style: TextStyle(color: colorScheme.onSurfaceVariant, fontSize: 13),
+        ),
       ],
     );
   }

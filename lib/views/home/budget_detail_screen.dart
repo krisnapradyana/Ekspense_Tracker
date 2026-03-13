@@ -18,7 +18,7 @@ class BudgetDetailScreen extends StatefulWidget {
 
 class _BudgetDetailScreenState extends State<BudgetDetailScreen> {
 
-  void _showEditExpenseDialog(BuildContext context, BudgetController controller, Expense expense, SettingsController settings, bool isDark) {
+  void _showEditExpenseDialog(BuildContext context, BudgetController controller, Expense expense, SettingsController settings) {
     final titleController = TextEditingController(text: expense.title);
     final amountController = TextEditingController(text: expense.amount.toStringAsFixed(0));
     String selectedBudgetId = expense.budgetId;
@@ -29,9 +29,8 @@ class _BudgetDetailScreenState extends State<BudgetDetailScreen> {
         return StatefulBuilder(
           builder: (context, setState) {
             return AlertDialog(
-              backgroundColor: AppColors.surface(isDark),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-              title: Text(settings.getString('editExpense'), style: TextStyle(color: AppColors.tp(isDark), fontWeight: FontWeight.bold)),
+              title: Text(settings.getString('editExpense'), style: const TextStyle(fontWeight: FontWeight.bold)),
               content: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -80,7 +79,7 @@ class _BudgetDetailScreenState extends State<BudgetDetailScreen> {
               actions: [
                 TextButton(
                   onPressed: () => Navigator.pop(context),
-                  child: Text(settings.getString('cancel'), style: TextStyle(color: AppColors.ts(isDark))),
+                  child: Text(settings.getString('cancel'), style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)),
                 ),
                 ElevatedButton(
                   onPressed: () {
@@ -112,21 +111,21 @@ class _BudgetDetailScreenState extends State<BudgetDetailScreen> {
     );
   }
 
-  void _confirmDeleteExpense(BuildContext context, BudgetController controller, String expenseId, SettingsController settings, bool isDark) {
+  void _confirmDeleteExpense(BuildContext context, BudgetController controller, String expenseId, SettingsController settings) {
+    final colorScheme = Theme.of(context).colorScheme;
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        backgroundColor: AppColors.surface(isDark),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: Text(settings.getString('deleteExpenseTitle'), style: TextStyle(color: AppColors.tp(isDark), fontWeight: FontWeight.bold)),
+        title: Text(settings.getString('deleteExpenseTitle'), style: const TextStyle(fontWeight: FontWeight.bold)),
         content: Text(
           settings.getString('deleteExpenseConfirm'),
-          style: TextStyle(color: AppColors.ts(isDark)),
+          style: TextStyle(color: colorScheme.onSurfaceVariant),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text(settings.getString('cancel'), style: TextStyle(color: AppColors.ts(isDark))),
+            child: Text(settings.getString('cancel'), style: TextStyle(color: colorScheme.onSurfaceVariant)),
           ),
           ElevatedButton(
             onPressed: () {
@@ -149,11 +148,11 @@ class _BudgetDetailScreenState extends State<BudgetDetailScreen> {
   Widget build(BuildContext context) {
     final controller = context.watch<BudgetController>();
     final settingsController = context.watch<SettingsController>();
-    final isDark = settingsController.isDarkMode;
-    
+    final colorScheme = Theme.of(context).colorScheme;
+
     // Get all expenses for this specific budget
     final categoryExpenses = controller.expenses.where((e) => e.budgetId == widget.category.id).toList();
-    
+
     // Sort expenses by date (newest first)
     categoryExpenses.sort((a, b) => b.date.compareTo(a.date));
 
@@ -167,12 +166,10 @@ class _BudgetDetailScreenState extends State<BudgetDetailScreen> {
     final color = AppColors.getDynamicColor(percentage);
 
     return Scaffold(
-      backgroundColor: AppColors.background(isDark),
       appBar: AppBar(
-        title: Text(currentCategory.name, style: TextStyle(color: AppColors.tp(isDark), fontWeight: FontWeight.bold)),
+        title: Text(currentCategory.name, style: const TextStyle(fontWeight: FontWeight.bold)),
         backgroundColor: Colors.transparent,
         elevation: 0,
-        iconTheme: const IconThemeData(color: AppColors.sagePrimary),
         centerTitle: true,
       ),
       body: Column(
@@ -182,7 +179,7 @@ class _BudgetDetailScreenState extends State<BudgetDetailScreen> {
             margin: const EdgeInsets.all(24.0),
             padding: const EdgeInsets.all(24.0),
             decoration: BoxDecoration(
-              color: AppColors.surface(isDark),
+              color: colorScheme.surface,
               borderRadius: BorderRadius.circular(24.0),
               boxShadow: [
                 BoxShadow(
@@ -198,8 +195,8 @@ class _BudgetDetailScreenState extends State<BudgetDetailScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(settingsController.getString('remainingBudget'), style: TextStyle(color: AppColors.ts(isDark), fontSize: 14)),
-                    Text('${settingsController.getString('total')} ${currentCategory.allocatedAmount.toStringAsFixed(0)}', style: TextStyle(color: AppColors.ts(isDark), fontSize: 12)),
+                    Text(settingsController.getString('remainingBudget'), style: TextStyle(color: colorScheme.onSurfaceVariant, fontSize: 14)),
+                    Text('${settingsController.getString('total')} ${currentCategory.allocatedAmount.toStringAsFixed(0)}', style: TextStyle(color: colorScheme.onSurfaceVariant, fontSize: 12)),
                   ],
                 ),
                 const SizedBox(height: 8),
@@ -222,7 +219,7 @@ class _BudgetDetailScreenState extends State<BudgetDetailScreen> {
                   ),
                 ),
                 const SizedBox(height: 8),
-                Text('${settingsController.getString('spent')} ${currentCategory.spentAmount.toStringAsFixed(0)}', style: TextStyle(color: AppColors.ts(isDark), fontSize: 14)),
+                Text('${settingsController.getString('spent')} ${currentCategory.spentAmount.toStringAsFixed(0)}', style: TextStyle(color: colorScheme.onSurfaceVariant, fontSize: 14)),
               ],
             ),
           ),
@@ -231,7 +228,7 @@ class _BudgetDetailScreenState extends State<BudgetDetailScreen> {
           Expanded(
             child: Container(
               decoration: BoxDecoration(
-                color: AppColors.surface(isDark),
+                color: colorScheme.surface,
                 borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
               ),
               child: Column(
@@ -241,10 +238,9 @@ class _BudgetDetailScreenState extends State<BudgetDetailScreen> {
                     padding: const EdgeInsets.fromLTRB(24, 24, 24, 16),
                     child: Text(
                       settingsController.getString('expenseHistory'),
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
-                        color: AppColors.tp(isDark),
                       ),
                     ),
                   ),
@@ -254,7 +250,7 @@ class _BudgetDetailScreenState extends State<BudgetDetailScreen> {
                             child: Text(
                               settingsController.getString('noExpenseCategory'),
                               textAlign: TextAlign.center,
-                              style: TextStyle(color: AppColors.ts(isDark)),
+                              style: TextStyle(color: colorScheme.onSurfaceVariant),
                             ),
                           )
                         : ListView.builder(
@@ -265,7 +261,7 @@ class _BudgetDetailScreenState extends State<BudgetDetailScreen> {
                               return ListTile(
                                 contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
                                 leading: CircleAvatar(
-                                  backgroundColor: AppColors.background(isDark),
+                                  backgroundColor: Theme.of(context).scaffoldBackgroundColor,
                                   child: const Icon(Icons.receipt_long, color: AppColors.sagePrimary),
                                 ),
                                 title: Row(
@@ -274,7 +270,7 @@ class _BudgetDetailScreenState extends State<BudgetDetailScreen> {
                                     Expanded(
                                       child: Text(
                                         expense.title,
-                                        style: TextStyle(fontWeight: FontWeight.w600, color: AppColors.tp(isDark)),
+                                        style: const TextStyle(fontWeight: FontWeight.w600),
                                         overflow: TextOverflow.ellipsis,
                                       ),
                                     ),
@@ -292,7 +288,7 @@ class _BudgetDetailScreenState extends State<BudgetDetailScreen> {
                                   children: [
                                     Text(
                                       DateFormat('dd MMM yyyy, HH:mm').format(expense.date),
-                                      style: TextStyle(color: AppColors.ts(isDark), fontSize: 12),
+                                      style: TextStyle(color: colorScheme.onSurfaceVariant, fontSize: 12),
                                     ),
                                     Row(
                                       mainAxisSize: MainAxisSize.min,
@@ -302,7 +298,7 @@ class _BudgetDetailScreenState extends State<BudgetDetailScreen> {
                                           padding: EdgeInsets.zero,
                                           icon: const Icon(Icons.edit, size: 18, color: AppColors.sagePrimary),
                                           onPressed: () {
-                                            _showEditExpenseDialog(context, controller, expense, settingsController, isDark);
+                                            _showEditExpenseDialog(context, controller, expense, settingsController);
                                           },
                                         ),
                                         const SizedBox(width: 8),
@@ -311,7 +307,7 @@ class _BudgetDetailScreenState extends State<BudgetDetailScreen> {
                                           padding: EdgeInsets.zero,
                                           icon: const Icon(Icons.delete, size: 18, color: AppColors.warningRed),
                                           onPressed: () {
-                                            _confirmDeleteExpense(context, controller, expense.id, settingsController, isDark);
+                                            _confirmDeleteExpense(context, controller, expense.id, settingsController);
                                           },
                                         ),
                                       ],
