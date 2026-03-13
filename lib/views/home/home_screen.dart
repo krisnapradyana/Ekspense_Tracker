@@ -18,14 +18,31 @@ class HomeScreen extends StatefulWidget {
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   bool _hasCheckedFirstLaunch = false;
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _checkInitialWidgetClick();
     _listenWidgetClick();
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      // Sinkronisasi data jika ada perubahan dari background (misal dari Widget)
+      if (mounted) {
+        context.read<BudgetController>().loadData();
+      }
+    }
   }
 
   void _checkInitialWidgetClick() async {
@@ -149,7 +166,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   DropdownButtonFormField<String>(
-                    value: selectedBudgetId,
+                    initialValue: selectedBudgetId,
                     decoration: InputDecoration(
                       labelText: settings.getString('selectBudgetCategory'),
                       border: OutlineInputBorder(borderRadius: BorderRadius.circular(16)),

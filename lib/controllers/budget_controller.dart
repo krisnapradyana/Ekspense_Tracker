@@ -20,12 +20,14 @@ class BudgetController extends ChangeNotifier {
   String get selectedWidgetBudgetId => _selectedWidgetBudgetId;
 
   BudgetController() {
-    _loadData();
+    loadData();
   }
 
-  Future<void> _loadData() async {
+  Future<void> loadData() async {
     try {
+      // Always reload SharedPreferences from disk when requested
       final prefs = await SharedPreferences.getInstance();
+      await prefs.reload();
       
       final String? categoriesJson = prefs.getString('budget_categories');
       if (categoriesJson != null) {
@@ -133,7 +135,7 @@ class BudgetController extends ChangeNotifier {
   }
 
   /// Menambah pengeluaran baru dan otomatis mengupdate sisa budget di kategori terkait
-  void addExpense(Expense expense) {
+  Future<void> addExpense(Expense expense) async {
     _expenses.insert(0, expense);
     
     final categoryIndex = _categories.indexWhere((c) => c.id == expense.budgetId);
@@ -143,11 +145,11 @@ class BudgetController extends ChangeNotifier {
     
     // Memberitahu semua View terkait untuk me-render ulang UI (termasuk update hero card & warna)
     notifyListeners();
-    _saveData();
+    await _saveData();
   }
 
   /// Menambah kategori budget baru
-  void addBudgetCategory(String name, double allocatedAmount) {
+  Future<void> addBudgetCategory(String name, double allocatedAmount) async {
     final newCategory = BudgetCategory(
       id: DateTime.now().millisecondsSinceEpoch.toString(),
       name: name,
@@ -155,11 +157,11 @@ class BudgetController extends ChangeNotifier {
     );
     _categories.add(newCategory);
     notifyListeners();
-    _saveData();
+    await _saveData();
   }
 
   /// Memperbarui kategori budget
-  void updateBudgetCategory(String id, String newName, double newAllocatedAmount) {
+  Future<void> updateBudgetCategory(String id, String newName, double newAllocatedAmount) async {
     final index = _categories.indexWhere((c) => c.id == id);
     if (index != -1) {
       final oldSpent = _categories[index].spentAmount;
@@ -170,20 +172,20 @@ class BudgetController extends ChangeNotifier {
         spentAmount: oldSpent,
       );
       notifyListeners();
-      _saveData();
+      await _saveData();
     }
   }
 
   /// Menghapus kategori budget beserta daftar pengeluaran terkait
-  void deleteBudgetCategory(String id) {
+  Future<void> deleteBudgetCategory(String id) async {
     _categories.removeWhere((c) => c.id == id);
     _expenses.removeWhere((e) => e.budgetId == id);
     notifyListeners();
-    _saveData();
+    await _saveData();
   }
 
   /// Memperbarui pengeluaran dan penyesuaian budget
-  void updateExpense(String expenseId, Expense updatedExpense) {
+  Future<void> updateExpense(String expenseId, Expense updatedExpense) async {
     final index = _expenses.indexWhere((e) => e.id == expenseId);
     if (index != -1) {
       final oldExpense = _expenses[index];
@@ -204,12 +206,12 @@ class BudgetController extends ChangeNotifier {
       }
       
       notifyListeners();
-      _saveData();
+      await _saveData();
     }
   }
 
   /// Menghapus pengeluaran dan mengembalikan budget
-  void deleteExpense(String expenseId) {
+  Future<void> deleteExpense(String expenseId) async {
     final expense = _expenses.firstWhere((e) => e.id == expenseId);
     
     // Kembalikan dana
@@ -220,6 +222,6 @@ class BudgetController extends ChangeNotifier {
     
     _expenses.removeWhere((e) => e.id == expenseId);
     notifyListeners();
-    _saveData();
+    await _saveData();
   }
 }

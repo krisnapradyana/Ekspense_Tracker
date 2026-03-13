@@ -51,7 +51,7 @@ class StatisticsScreen extends StatelessWidget {
                   color: colorScheme.surface,
                   borderRadius: BorderRadius.circular(20),
                   boxShadow: [
-                    BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, 4)),
+                    BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 10, offset: const Offset(0, 4)),
                   ],
                 ),
                 child: BarChart(
@@ -61,7 +61,7 @@ class StatisticsScreen extends StatelessWidget {
                     barTouchData: BarTouchData(
                       enabled: true,
                       touchTooltipData: BarTouchTooltipData(
-                        getTooltipColor: (_) => AppColors.sagePrimary.withOpacity(0.8),
+                        getTooltipColor: (_) => AppColors.sagePrimary.withValues(alpha: 0.8),
                         getTooltipItem: (group, groupIndex, rod, rodIndex) {
                           return BarTooltipItem(
                             'Rp ${rod.toY.toStringAsFixed(0)}',
@@ -121,7 +121,7 @@ class StatisticsScreen extends StatelessWidget {
                     gridData: FlGridData(
                       show: true,
                       drawVerticalLine: false,
-                      getDrawingHorizontalLine: (value) => FlLine(color: AppColors.sageSecondary.withOpacity(0.2), strokeWidth: 1),
+                      getDrawingHorizontalLine: (value) => FlLine(color: AppColors.sageSecondary.withValues(alpha: 0.2), strokeWidth: 1),
                     ),
                     borderData: FlBorderData(show: false),
                     barGroups: List.generate(categories.length, (index) {
@@ -132,7 +132,7 @@ class StatisticsScreen extends StatelessWidget {
                            // Bar untuk Alokasi (Budget Total)
                           BarChartRodData(
                             toY: cat.allocatedAmount,
-                            color: AppColors.sageSecondary.withOpacity(0.4),
+                            color: AppColors.sageSecondary.withValues(alpha: 0.4),
                             width: 16,
                             borderRadius: BorderRadius.circular(4),
                           ),
@@ -158,7 +158,7 @@ class StatisticsScreen extends StatelessWidget {
             const SizedBox(height: 12),
             _buildLegend(
               context: context,
-              color: AppColors.sageSecondary.withOpacity(0.4),
+              color: AppColors.sageSecondary.withValues(alpha: 0.4),
               text: settingsController.getString('totalBudgetAllocation'),
             ),
             const SizedBox(height: 8),

@@ -35,7 +35,7 @@ class HeroCard extends StatelessWidget {
               borderRadius: BorderRadius.circular(28.0), // Sudut bulat Material 3
               boxShadow: [
                 BoxShadow(
-                  color: dynamicColor.withOpacity(0.4), // Perbaikan withOpacity untuk kompatibilitas
+                  color: dynamicColor.withValues(alpha: 0.4), // Perbaikan withOpacity untuk kompatibilitas
                   blurRadius: 12,
                   offset: const Offset(0, 6),
                 ),

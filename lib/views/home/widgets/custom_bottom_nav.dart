@@ -23,7 +23,7 @@ class CustomBottomNav extends StatelessWidget {
       shape: const WavyBottomAppBarShape(),
       clipBehavior: Clip.antiAlias,
       elevation: 24,
-      shadowColor: Colors.black.withOpacity(0.4),
+      shadowColor: Colors.black.withValues(alpha: 0.4),
       color: AppColors.sagePrimary, // Warna ombak sage
       surfaceTintColor: Colors.transparent,
       padding: EdgeInsets.zero,

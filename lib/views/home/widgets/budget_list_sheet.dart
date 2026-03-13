@@ -230,7 +230,7 @@ class _BudgetListSheetState extends State<BudgetListSheet> {
                     decoration: BoxDecoration(
                       color: colorScheme.surface,
                       borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: AppColors.sageSecondary.withOpacity(0.3)),
+                      border: Border.all(color: AppColors.sageSecondary.withValues(alpha: 0.3)),
                     ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -255,7 +255,7 @@ class _BudgetListSheetState extends State<BudgetListSheet> {
                         borderRadius: BorderRadius.circular(4),
                         child: LinearProgressIndicator(
                           value: percentage,
-                          backgroundColor: AppColors.sageSecondary.withOpacity(0.4),
+                          backgroundColor: AppColors.sageSecondary.withValues(alpha: 0.4),
                           valueColor: AlwaysStoppedAnimation<Color>(color),
                           minHeight: 6,
                         ),

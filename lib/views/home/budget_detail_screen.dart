@@ -35,7 +35,7 @@ class _BudgetDetailScreenState extends State<BudgetDetailScreen> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   DropdownButtonFormField<String>(
-                    value: selectedBudgetId,
+                    initialValue: selectedBudgetId,
                     decoration: InputDecoration(
                       labelText: settings.getString('selectBudgetCategory'),
                       border: OutlineInputBorder(borderRadius: BorderRadius.circular(16)),
@@ -183,7 +183,7 @@ class _BudgetDetailScreenState extends State<BudgetDetailScreen> {
               borderRadius: BorderRadius.circular(24.0),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
+                  color: Colors.black.withValues(alpha: 0.05),
                   blurRadius: 10,
                   offset: const Offset(0, 4),
                 ),
@@ -213,7 +213,7 @@ class _BudgetDetailScreenState extends State<BudgetDetailScreen> {
                   borderRadius: BorderRadius.circular(4),
                   child: LinearProgressIndicator(
                     value: percentage,
-                    backgroundColor: AppColors.sageSecondary.withOpacity(0.4),
+                    backgroundColor: AppColors.sageSecondary.withValues(alpha: 0.4),
                     valueColor: AlwaysStoppedAnimation<Color>(color),
                     minHeight: 8,
                   ),

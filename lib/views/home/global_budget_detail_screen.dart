@@ -44,7 +44,7 @@ class GlobalBudgetDetailScreen extends StatelessWidget {
               borderRadius: BorderRadius.circular(24.0),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
+                  color: Colors.black.withValues(alpha: 0.05),
                   blurRadius: 10,
                   offset: const Offset(0, 4),
                 ),
@@ -80,7 +80,7 @@ class GlobalBudgetDetailScreen extends StatelessWidget {
                   borderRadius: BorderRadius.circular(4),
                   child: LinearProgressIndicator(
                     value: percentage > 0 ? percentage : 0.0,
-                    backgroundColor: AppColors.sageSecondary.withOpacity(0.4),
+                    backgroundColor: AppColors.sageSecondary.withValues(alpha: 0.4),
                     valueColor: AlwaysStoppedAnimation<Color>(color),
                     minHeight: 8,
                   ),
@@ -147,7 +147,7 @@ class GlobalBudgetDetailScreen extends StatelessWidget {
                                   decoration: BoxDecoration(
                                     color: colorScheme.surface,
                                     borderRadius: BorderRadius.circular(16),
-                                    border: Border.all(color: AppColors.sageSecondary.withOpacity(0.3)),
+                                    border: Border.all(color: AppColors.sageSecondary.withValues(alpha: 0.3)),
                                   ),
                                   child: Column(
                                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -174,7 +174,7 @@ class GlobalBudgetDetailScreen extends StatelessWidget {
                                         borderRadius: BorderRadius.circular(4),
                                         child: LinearProgressIndicator(
                                           value: catPercentage,
-                                          backgroundColor: AppColors.sageSecondary.withOpacity(0.4),
+                                          backgroundColor: AppColors.sageSecondary.withValues(alpha: 0.4),
                                           valueColor: AlwaysStoppedAnimation<Color>(catColor),
                                           minHeight: 6,
                                         ),

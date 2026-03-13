@@ -35,9 +35,9 @@ class BudgetSelectionSheet extends StatelessWidget {
                 trailing: selectedId == 'all'
                     ? const Icon(Icons.check_circle, color: AppColors.sagePrimary)
                     : null,
-                onTap: () {
-                  controller.updateWidgetSelection('all');
-                  Navigator.pop(context);
+                onTap: () async {
+                  await controller.updateWidgetSelection('all');
+                  if (context.mounted) Navigator.pop(context);
                 },
               ),
               const Divider(),
@@ -54,9 +54,9 @@ class BudgetSelectionSheet extends StatelessWidget {
                     trailing: selectedId == cat.id
                         ? const Icon(Icons.check_circle, color: AppColors.sagePrimary)
                         : null,
-                    onTap: () {
-                      controller.updateWidgetSelection(cat.id);
-                      Navigator.pop(context);
+                    onTap: () async {
+                      await controller.updateWidgetSelection(cat.id);
+                      if (context.mounted) Navigator.pop(context);
                     },
                   );
                 }),

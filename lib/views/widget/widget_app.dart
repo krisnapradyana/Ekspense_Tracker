@@ -64,7 +64,8 @@ class _WidgetEntryPointState extends State<WidgetEntryPoint> {
       );
     }
     
-    // Close the transparent activity when sheet is dismissed
+    // Allow time for modal exit animation and background tasks
+    await Future.delayed(const Duration(milliseconds: 300));
     SystemNavigator.pop();
   }
 

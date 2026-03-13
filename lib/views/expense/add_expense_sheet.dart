@@ -25,7 +25,7 @@ class _AddExpenseSheetState extends State<AddExpenseSheet> {
     super.dispose();
   }
 
-  void _submitExpense() {
+  void _submitExpense() async {
     if (_titleController.text.isEmpty ||
         _amountController.text.isEmpty ||
         _selectedBudgetId == null) {
@@ -44,8 +44,8 @@ class _AddExpenseSheetState extends State<AddExpenseSheet> {
       budgetId: _selectedBudgetId!,
     );
 
-    context.read<BudgetController>().addExpense(newExpense);
-    Navigator.pop(context); // Tutup sheet setelah simpan
+    await context.read<BudgetController>().addExpense(newExpense);
+    if (mounted) Navigator.pop(context); // Tutup sheet setelah simpan
   }
 
   @override

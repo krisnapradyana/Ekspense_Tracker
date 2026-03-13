@@ -54,7 +54,7 @@ class SettingsScreen extends StatelessWidget {
             title: settingsController.getString('darkTheme'),
             trailing: Switch(
               value: settingsController.isDarkMode,
-              activeColor: AppColors.sagePrimary,
+              activeThumbColor: AppColors.sagePrimary,
               onChanged: (val) {
                 settingsController.toggleDarkMode(val);
               },
@@ -66,7 +66,7 @@ class SettingsScreen extends StatelessWidget {
             title: settingsController.getString('notifications'),
             trailing: Switch(
               value: true,
-              activeColor: AppColors.sagePrimary,
+              activeThumbColor: AppColors.sagePrimary,
               onChanged: (val) {},
             ),
           ),
