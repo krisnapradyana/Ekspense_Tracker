@@ -1,6 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 import 'package:expense_tracker/main.dart';
+import 'package:expense_tracker/controllers/settings_controller.dart';
 import 'package:expense_tracker/controllers/budget_controller.dart';
 
 void main() {
@@ -10,6 +11,7 @@ void main() {
       MultiProvider(
         providers: [
           ChangeNotifierProvider(create: (_) => BudgetController()),
+          ChangeNotifierProvider(create: (_) => SettingsController()),
         ],
         child: const ExpenseTrackerApp(),
       ),

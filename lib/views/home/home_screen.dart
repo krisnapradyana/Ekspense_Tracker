@@ -90,12 +90,12 @@ class _HomeScreenState extends State<HomeScreen> {
       firstDate: DateTime(2000),
       lastDate: DateTime.now(),
       builder: (context, child) {
+        final colorScheme = Theme.of(context).colorScheme;
         return Theme(
           data: Theme.of(context).copyWith(
-            colorScheme: ColorScheme.light(
+            colorScheme: colorScheme.copyWith(
               primary: AppColors.sagePrimary,
               onPrimary: Colors.white,
-              onSurface: Theme.of(context).colorScheme.onSurface,
             ),
           ),
           child: child!,
